@@ -663,18 +663,19 @@ body {
     }
 
     .admin-book-item {
-        gap: 0.75rem;
+        gap: 0.5rem;
         padding: 0.5rem;
+        align-items: flex-start;
     }
 
     .admin-book-item .book-details {
         min-width: 0;
-        flex: 1;
+        flex: 1 1 calc(100% - 50px);
     }
 
     .admin-book-item .btn-small {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
     }
 
     .search-result-item {
