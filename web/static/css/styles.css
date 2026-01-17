@@ -643,7 +643,41 @@ body {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
 
-    .admin-book-item,
+    .book-info {
+        padding: 0.5rem;
+    }
+
+    .book-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.15rem;
+    }
+
+    .book-authors {
+        font-size: 0.7rem;
+    }
+
+    .book-status {
+        margin-top: 0.35rem;
+        padding: 0.1rem 0.4rem;
+        font-size: 0.65rem;
+    }
+
+    .admin-book-item {
+        gap: 0.5rem;
+        padding: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .admin-book-item .book-details {
+        min-width: 0;
+        flex: 1 1 calc(100% - 50px);
+    }
+
+    .admin-book-item .btn-small {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
     .search-result-item {
         flex-direction: column;
         align-items: flex-start;
