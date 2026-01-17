@@ -8,11 +8,11 @@ RUN apk add --no-cache gcc musl-dev
 
 # Download dependencies first (better caching)
 COPY go.mod go.sum ./
-RUN GOTOOLCHAIN=auto go mod download
+RUN go mod download
 
 # Copy source code and build
 COPY . .
-RUN CGO_ENABLED=1 GOTOOLCHAIN=auto go build -o server ./cmd/server
+RUN CGO_ENABLED=1 go build -o server ./cmd/server
 
 # Stage 2: Runtime
 FROM alpine:latest
