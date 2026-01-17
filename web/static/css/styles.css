@@ -678,6 +678,10 @@ body {
         font-size: 0.8rem;
     }
 
+    .admin-book-item .inline-form {
+        width: auto;
+    }
+
     .search-result-item {
         flex-direction: column;
         align-items: flex-start;
