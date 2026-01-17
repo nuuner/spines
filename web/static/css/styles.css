@@ -643,6 +643,25 @@ body {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
 
+    .book-info {
+        padding: 0.5rem;
+    }
+
+    .book-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.15rem;
+    }
+
+    .book-authors {
+        font-size: 0.7rem;
+    }
+
+    .book-status {
+        margin-top: 0.35rem;
+        padding: 0.1rem 0.4rem;
+        font-size: 0.65rem;
+    }
+
     .admin-book-item,
     .search-result-item {
         flex-direction: column;
