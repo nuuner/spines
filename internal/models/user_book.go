@@ -22,6 +22,7 @@ type UserBook struct {
 // parseDateTime parses a SQLite datetime string into time.Time
 func parseDateTime(s string) (time.Time, error) {
 	formats := []string{
+		time.RFC3339,
 		"2006-01-02 15:04:05",
 		"2006-01-02T15:04:05",
 		"2006-01-02 15:04",
