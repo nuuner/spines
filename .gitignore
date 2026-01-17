@@ -39,8 +39,8 @@ go.work.sum
 uploads/
 
 # Compiled binary
-main
-server
+/main
+/server
 
 # Editor/IDE
 .idea/
