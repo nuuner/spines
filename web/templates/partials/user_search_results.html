@@ -1,0 +1,27 @@
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+{{if .Results}}
+<section class="section">
+    <h2>Search Results</h2>
+    <div class="search-results">
+        {{range .Results}}
+        <div class="search-result-item">
+            {{if .GoogleBooksID}}
+            <img src="/api/images/book/{{.GoogleBooksID}}" alt="{{.Title}}" class="book-thumb">
+            {{else}}
+            <div class="book-thumb-placeholder"></div>
+            {{end}}
+            <div class="book-details">
+                <strong>{{.Title}}</strong>
+                {{if .Authors}}<br><span class="authors">{{.Authors}}</span>{{end}}
+            </div>
+            <a href="/my-books/add?google_books_id={{.GoogleBooksID}}&title={{urlquery .Title}}&authors={{urlquery .Authors}}&thumbnail_url={{urlquery .ThumbnailURL}}&q={{urlquery $.Query}}" class="btn btn-primary btn-small">Add</a>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{else if .Query}}
+<p class="empty-state">No results found for "{{.Query}}".</p>
+{{end}}

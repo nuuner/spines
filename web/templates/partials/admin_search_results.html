@@ -1,0 +1,40 @@
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+{{if .Results}}
+<section class="section">
+    <h2>Search Results</h2>
+    <div class="search-results">
+        {{range .Results}}
+        <div class="search-result-item">
+            {{if .GoogleBooksID}}
+            <img src="/api/images/book/{{.GoogleBooksID}}" alt="{{.Title}}" class="book-thumb">
+            {{else}}
+            <div class="book-thumb-placeholder"></div>
+            {{end}}
+            <div class="book-details">
+                <strong>{{.Title}}</strong>
+                {{if .Authors}}<br><span class="authors">{{.Authors}}</span>{{end}}
+            </div>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books" class="add-book-form csrf-form">
+                <input type="hidden" name="csrf_token" class="csrf-token-input">
+                <input type="hidden" name="google_books_id" value="{{.GoogleBooksID}}">
+                <input type="hidden" name="title" value="{{.Title}}">
+                <input type="hidden" name="authors" value="{{.Authors}}">
+                <input type="hidden" name="thumbnail_url" value="{{.ThumbnailURL}}">
+                <select name="shelf" required>
+                    <option value="">Select shelf...</option>
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="currently_reading">Currently Reading</option>
+                    <option value="read">Read</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-small">Add</button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{else if .Query}}
+<p class="empty-state">No results found for "{{.Query}}".</p>
+{{end}}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spines</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="/static/js/htmx.min.js"></script>
+</head>
+<body>
+    {{template "navbar" .}}
+    <div class="container">
+        {{embed}}
+    </div>
+    <script>
+        // CSRF token helper
+        function getCSRFToken() {
+            const match = document.cookie.match(/csrf_token=([^;]+)/);
+            return match ? match[1] : '';
+        }
+
+        // Configure HTMX to send CSRF token with requests
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            event.detail.headers['X-CSRF-Token'] = getCSRFToken();
+        });
+
+        // Fill in CSRF tokens for dynamically loaded forms
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            const token = getCSRFToken();
+            event.detail.target.querySelectorAll('.csrf-token-input').forEach(function(input) {
+                input.value = token;
+            });
+        });
+    </script>
+</body>
+</html>

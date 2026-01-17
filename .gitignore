@@ -26,7 +26,25 @@ go.work.sum
 
 # env file
 .env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Uploads (user-generated content)
+uploads/
+
+# Compiled binary
+main
+server
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

@@ -1,0 +1,129 @@
+<div class="page-header">
+    <h1>Manage Books: {{.User.DisplayName}}</h1>
+    <div class="page-header-actions">
+        <a href="/admin/users/{{.User.ID}}/books/search" class="btn btn-primary">Add Books</a>
+        <a href="/u/{{.User.Username}}" class="btn btn-secondary">View Public Profile</a>
+    </div>
+</div>
+
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+{{if .Shelves.CurrentlyReading}}
+<section class="section">
+    <h2>Currently Reading</h2>
+    <div class="admin-book-list">
+        {{range .Shelves.CurrentlyReading}}
+        <div class="admin-book-item">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{.Book.Title}}</strong>
+                {{if .Book.Authors}}<br><span class="authors">{{.Book.Authors}}</span>{{end}}
+            </div>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <select name="shelf">
+                    <option value="currently_reading" selected>Currently Reading</option>
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="read">Read</option>
+                </select>
+                <select name="sub_status">
+                    <option value="">No status</option>
+                    <option value="just_started" {{if eq .SubStatus.String "just_started"}}selected{{end}}>Just Started</option>
+                    <option value="quarter" {{if eq .SubStatus.String "quarter"}}selected{{end}}>25%</option>
+                    <option value="half" {{if eq .SubStatus.String "half"}}selected{{end}}>50%</option>
+                    <option value="three_quarters" {{if eq .SubStatus.String "three_quarters"}}selected{{end}}>75%</option>
+                    <option value="almost_finished" {{if eq .SubStatus.String "almost_finished"}}selected{{end}}>Almost Finished</option>
+                </select>
+                <button type="submit" class="btn btn-small">Update</button>
+            </form>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.WantToRead}}
+<section class="section">
+    <h2>Want to Read</h2>
+    <div class="admin-book-list">
+        {{range .Shelves.WantToRead}}
+        <div class="admin-book-item">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{.Book.Title}}</strong>
+                {{if .Book.Authors}}<br><span class="authors">{{.Book.Authors}}</span>{{end}}
+            </div>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <select name="shelf">
+                    <option value="want_to_read" selected>Want to Read</option>
+                    <option value="currently_reading">Currently Reading</option>
+                    <option value="read">Read</option>
+                </select>
+                <select name="sub_status">
+                    <option value="">No status</option>
+                    <option value="need_to_buy" {{if eq .SubStatus.String "need_to_buy"}}selected{{end}}>Do not own</option>
+                    <option value="already_owned" {{if eq .SubStatus.String "already_owned"}}selected{{end}}>Already Owned</option>
+                </select>
+                <button type="submit" class="btn btn-small">Update</button>
+            </form>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.Read}}
+<section class="section">
+    <h2>Read</h2>
+    <div class="admin-book-list">
+        {{range .Shelves.Read}}
+        <div class="admin-book-item">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{.Book.Title}}</strong>
+                {{if .Book.Authors}}<br><span class="authors">{{.Book.Authors}}</span>{{end}}
+            </div>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <select name="shelf">
+                    <option value="read" selected>Read</option>
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="currently_reading">Currently Reading</option>
+                </select>
+                <input type="hidden" name="sub_status" value="">
+                <button type="submit" class="btn btn-small">Update</button>
+            </form>
+            <form method="POST" action="/admin/users/{{$.User.ID}}/books/{{.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if not .Shelves.CurrentlyReading}}
+{{if not .Shelves.WantToRead}}
+{{if not .Shelves.Read}}
+<p class="empty-state">No books yet. <a href="/admin/users/{{.User.ID}}/books/search">Add some books</a>.</p>
+{{end}}
+{{end}}
+{{end}}

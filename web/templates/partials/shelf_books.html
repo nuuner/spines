@@ -1,0 +1,36 @@
+{{range .Books}}
+<div class="admin-book-item">
+    {{if .Book.GoogleBooksID}}
+    <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-thumb">
+    {{end}}
+    <div class="book-details">
+        <strong>{{.Book.Title}}</strong>
+        {{if .Book.Authors}}<br><span class="authors">{{.Book.Authors}}</span>{{end}}
+        <div class="book-meta">
+            {{if eq .Shelf "currently_reading"}}
+                {{if .SubStatusDisplay}}<span class="book-meta-item">{{.SubStatusDisplay}}</span>{{end}}
+                {{if .StartedReadingAtDisplay}}<span class="book-meta-item">Started {{.StartedReadingAtDisplay}}</span>{{end}}
+            {{else if eq .Shelf "want_to_read"}}
+                {{if .SubStatusDisplay}}<span class="book-meta-item">{{.SubStatusDisplay}}</span>{{end}}
+                {{if .AddedAtDisplay}}<span class="book-meta-item">Added {{.AddedAtDisplay}}</span>{{end}}
+            {{else if eq .Shelf "read"}}
+                {{if .FinishedReadingAtDisplay}}<span class="book-meta-item">Finished {{.FinishedReadingAtDisplay}}</span>{{end}}
+            {{end}}
+        </div>
+    </div>
+    <button type="button" class="btn btn-small" onclick="openEditModal({{.Book.ID}}, '{{.Shelf}}', '{{.SubStatus.String}}', '{{.AddedAtFormatted}}', '{{.StartedReadingAtFormatted}}', '{{.FinishedReadingAtFormatted}}')">Edit</button>
+    <form method="POST" action="/my-books/{{.Book.ID}}/delete" class="inline-form csrf-form" onsubmit="return confirm('Remove this book?');">
+        <input type="hidden" name="csrf_token" class="csrf-token-input">
+        <button type="submit" class="btn btn-small btn-danger">Remove</button>
+    </form>
+</div>
+{{end}}
+
+{{if gt .Remaining 0}}
+<button class="shelf-expand-btn"
+        hx-get="/my-books/shelf/{{.Shelf}}?offset={{.NextOffset}}"
+        hx-target="this"
+        hx-swap="outerHTML">
+    (show {{.Remaining}} hidden)
+</button>
+{{end}}

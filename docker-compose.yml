@@ -1,0 +1,14 @@
+services:
+  spines:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_PATH=/app/data/spines.db
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/web/static/uploads
+    restart: unless-stopped

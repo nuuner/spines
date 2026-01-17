@@ -1,0 +1,30 @@
+# Database files
+*.db
+data/
+
+# Upload directory (mounted as volume)
+uploads/
+
+# Environment files
+.env
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+
+# Compiled binaries
+main
+server
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

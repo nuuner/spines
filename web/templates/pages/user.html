@@ -1,0 +1,94 @@
+<div class="page-header user-page-header">
+    <img src="{{.User.GetProfilePictureURL}}" alt="{{.User.DisplayName}}" class="avatar-medium">
+    <div class="user-page-header-info">
+        <h1>{{.User.DisplayName}}</h1>
+        {{if .User.Description}}
+        <p class="subtitle">{{.User.Description}}</p>
+        {{end}}
+    </div>
+</div>
+
+{{if .Shelves.CurrentlyReading}}
+<section class="shelf">
+    <h2>Currently Reading</h2>
+    <div class="book-grid">
+        {{range .Shelves.CurrentlyReading}}
+        <div class="book-card">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
+            {{else}}
+            <div class="book-cover-placeholder"></div>
+            {{end}}
+            <div class="book-info">
+                <h3 class="book-title">{{.Book.Title}}</h3>
+                {{if .Book.Authors}}
+                <p class="book-authors">{{.Book.Authors}}</p>
+                {{end}}
+                {{if .SubStatus.Valid}}
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{.ReadingProgress}}%"></div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.WantToRead}}
+<section class="shelf">
+    <h2>Want to Read</h2>
+    <div class="book-grid">
+        {{range .Shelves.WantToRead}}
+        <div class="book-card">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
+            {{else}}
+            <div class="book-cover-placeholder"></div>
+            {{end}}
+            <div class="book-info">
+                <h3 class="book-title">{{.Book.Title}}</h3>
+                {{if .Book.Authors}}
+                <p class="book-authors">{{.Book.Authors}}</p>
+                {{end}}
+                {{if .SubStatus.Valid}}
+                <span class="book-status">{{.SubStatusDisplay}}</span>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.Read}}
+<section class="shelf">
+    <h2>Read</h2>
+    <div class="book-grid">
+        {{range .Shelves.Read}}
+        <div class="book-card">
+            {{if .Book.GoogleBooksID}}
+            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
+            {{else}}
+            <div class="book-cover-placeholder"></div>
+            {{end}}
+            <div class="book-info">
+                <h3 class="book-title">{{.Book.Title}}</h3>
+                {{if .Book.Authors}}
+                <p class="book-authors">{{.Book.Authors}}</p>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if not .Shelves.CurrentlyReading}}
+{{if not .Shelves.WantToRead}}
+{{if not .Shelves.Read}}
+<p class="empty-state">No books yet.</p>
+{{end}}
+{{end}}
+{{end}}

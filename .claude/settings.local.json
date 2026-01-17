@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(go test:*)",
+      "Bash(go build:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

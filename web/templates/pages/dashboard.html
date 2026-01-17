@@ -1,0 +1,13 @@
+<p style="margin-bottom: 1.5rem; color: var(--color-text-muted);">Select a reader</p>
+
+<div class="user-grid">
+    {{range .Users}}
+    <a href="/u/{{.Username}}" class="user-card">
+        <img src="{{.GetProfilePictureURL}}" alt="{{.DisplayName}}" class="avatar-medium">
+        <h2>{{.DisplayName}}</h2>
+        {{if .Description}}
+        <p class="line-clamp-3">{{.Description}}</p>
+        {{end}}
+    </a>
+    {{end}}
+</div>

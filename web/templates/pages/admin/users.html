@@ -1,0 +1,62 @@
+<div class="page-header">
+    <h1>Manage Users</h1>
+</div>
+
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+<section class="section">
+    <h2>Create New User</h2>
+    <form method="POST" action="/admin/users" class="form form-inline">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <div class="form-group">
+            <label for="username">Username (URL slug)</label>
+            <input type="text" id="username" name="username" required pattern="[a-z0-9-]+" placeholder="john-doe">
+        </div>
+        <div class="form-group">
+            <label for="display_name">Display Name</label>
+            <input type="text" id="display_name" name="display_name" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" placeholder="Book lover">
+        </div>
+        <button type="submit" class="btn btn-primary">Create User</button>
+    </form>
+</section>
+
+<section class="section">
+    <h2>Existing Users</h2>
+    {{if .Users}}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Display Name</th>
+                <th>Username</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Users}}
+            <tr>
+                <td>{{.DisplayName}}</td>
+                <td><a href="/u/{{.Username}}">{{.Username}}</a></td>
+                <td>{{.Description}}</td>
+                <td class="actions">
+                    <a href="/admin/users/{{.ID}}/books" class="btn btn-small">Books</a>
+                    <a href="/admin/users/{{.ID}}/edit" class="btn btn-small">Edit</a>
+                    <form method="POST" action="/admin/users/{{.ID}}/delete" style="display: inline;" onsubmit="return confirm('Delete this user?');">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p class="empty-state">No users yet.</p>
+    {{end}}
+</section>

@@ -1,0 +1,239 @@
+<div class="page-header">
+    <h1>My Books</h1>
+    <div class="page-header-actions">
+        <a href="/my-books/search" class="btn btn-primary">Add Books</a>
+        <a href="/u/{{.User.Username}}" class="btn btn-secondary">View My Public Page</a>
+    </div>
+</div>
+
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+{{if .Shelves.CurrentlyReading}}
+<section class="section">
+    <h2>Currently Reading</h2>
+    <div class="admin-book-list" id="shelf-currently-reading">
+        {{range $i, $book := .Shelves.CurrentlyReading}}
+        {{if lt $i 10}}
+        <div class="admin-book-item">
+            {{if $book.Book.GoogleBooksID}}
+            <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{$book.Book.Title}}</strong>
+                {{if $book.Book.Authors}}<br><span class="authors">{{$book.Book.Authors}}</span>{{end}}
+                <div class="book-meta">
+                    {{if $book.SubStatusDisplay}}<span class="book-meta-item">{{$book.SubStatusDisplay}}</span>{{end}}
+                    {{if $book.StartedReadingAtDisplay}}<span class="book-meta-item">Started {{$book.StartedReadingAtDisplay}}</span>{{end}}
+                </div>
+            </div>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'currently_reading', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+        {{end}}
+
+        {{$total := len .Shelves.CurrentlyReading}}
+        {{if gt $total 10}}
+        <button class="shelf-expand-btn"
+                hx-get="/my-books/shelf/currently_reading?offset=10"
+                hx-target="this"
+                hx-swap="outerHTML">
+            (show {{subtract $total 10}} hidden)
+        </button>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.WantToRead}}
+<section class="section">
+    <h2>Want to Read</h2>
+    <div class="admin-book-list" id="shelf-want-to-read">
+        {{range $i, $book := .Shelves.WantToRead}}
+        {{if lt $i 10}}
+        <div class="admin-book-item">
+            {{if $book.Book.GoogleBooksID}}
+            <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{$book.Book.Title}}</strong>
+                {{if $book.Book.Authors}}<br><span class="authors">{{$book.Book.Authors}}</span>{{end}}
+                <div class="book-meta">
+                    {{if $book.SubStatusDisplay}}<span class="book-meta-item">{{$book.SubStatusDisplay}}</span>{{end}}
+                    {{if $book.AddedAtDisplay}}<span class="book-meta-item">Added {{$book.AddedAtDisplay}}</span>{{end}}
+                </div>
+            </div>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'want_to_read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+        {{end}}
+
+        {{$total := len .Shelves.WantToRead}}
+        {{if gt $total 10}}
+        <button class="shelf-expand-btn"
+                hx-get="/my-books/shelf/want_to_read?offset=10"
+                hx-target="this"
+                hx-swap="outerHTML">
+            (show {{subtract $total 10}} hidden)
+        </button>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .Shelves.Read}}
+<section class="section">
+    <h2>Read</h2>
+    <div class="admin-book-list" id="shelf-read">
+        {{range $i, $book := .Shelves.Read}}
+        {{if lt $i 10}}
+        <div class="admin-book-item">
+            {{if $book.Book.GoogleBooksID}}
+            <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-thumb">
+            {{end}}
+            <div class="book-details">
+                <strong>{{$book.Book.Title}}</strong>
+                {{if $book.Book.Authors}}<br><span class="authors">{{$book.Book.Authors}}</span>{{end}}
+                <div class="book-meta">
+                    {{if $book.FinishedReadingAtDisplay}}<span class="book-meta-item">Finished {{$book.FinishedReadingAtDisplay}}</span>{{end}}
+                </div>
+            </div>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <button type="submit" class="btn btn-small btn-danger">Remove</button>
+            </form>
+        </div>
+        {{end}}
+        {{end}}
+
+        {{$total := len .Shelves.Read}}
+        {{if gt $total 10}}
+        <button class="shelf-expand-btn"
+                hx-get="/my-books/shelf/read?offset=10"
+                hx-target="this"
+                hx-swap="outerHTML">
+            (show {{subtract $total 10}} hidden)
+        </button>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if not .Shelves.CurrentlyReading}}
+{{if not .Shelves.WantToRead}}
+{{if not .Shelves.Read}}
+<p class="empty-state">No books yet. <a href="/my-books/search">Add some books</a>.</p>
+{{end}}
+{{end}}
+{{end}}
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal" onclick="if(event.target===this)closeEditModal()">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Book</h3>
+            <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form id="editForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="form-group">
+                <label>Shelf</label>
+                <select name="shelf" id="editShelf" onchange="updateSubStatusOptions()">
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="currently_reading">Currently Reading</option>
+                    <option value="read">Read</option>
+                </select>
+            </div>
+            <div class="form-group" id="subStatusGroup">
+                <label>Status</label>
+                <select name="sub_status" id="editSubStatus">
+                    <option value="">No status</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+        <hr class="modal-divider">
+        <form id="datesForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <h4>Dates</h4>
+            <div class="form-group">
+                <label>Added</label>
+                <input type="datetime-local" name="added_at" id="editAddedAt">
+            </div>
+            <div class="form-group">
+                <label>Started Reading</label>
+                <input type="datetime-local" name="started_reading_at" id="editStartedAt">
+            </div>
+            <div class="form-group">
+                <label>Finished Reading</label>
+                <input type="datetime-local" name="finished_reading_at" id="editFinishedAt">
+            </div>
+            <button type="submit" class="btn">Save Dates</button>
+        </form>
+    </div>
+</div>
+
+<script>
+const subStatusOptions = {
+    want_to_read: [
+        {value: '', label: 'No status'},
+        {value: 'need_to_buy', label: 'Do not own'},
+        {value: 'already_own', label: 'Already own'}
+    ],
+    currently_reading: [
+        {value: '', label: 'No status'},
+        {value: 'just_started', label: 'Just started'},
+        {value: '25_percent', label: '25%'},
+        {value: '50_percent', label: '50%'},
+        {value: '75_percent', label: '75%'},
+        {value: 'almost_finished', label: 'Almost finished'}
+    ],
+    read: [
+        {value: '', label: 'No status'}
+    ]
+};
+
+let currentBookId = null;
+
+function openEditModal(bookId, shelf, subStatus, addedAt, startedAt, finishedAt) {
+    currentBookId = bookId;
+    document.getElementById('editForm').action = '/my-books/' + bookId;
+    document.getElementById('datesForm').action = '/my-books/' + bookId + '/dates';
+    document.getElementById('editShelf').value = shelf;
+    updateSubStatusOptions();
+    document.getElementById('editSubStatus').value = subStatus;
+    document.getElementById('editAddedAt').value = addedAt;
+    document.getElementById('editStartedAt').value = startedAt;
+    document.getElementById('editFinishedAt').value = finishedAt;
+    document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+}
+
+function updateSubStatusOptions() {
+    const shelf = document.getElementById('editShelf').value;
+    const select = document.getElementById('editSubStatus');
+    const options = subStatusOptions[shelf] || [];
+    select.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+
+    // Hide sub-status for "read" shelf since it has no meaningful options
+    document.getElementById('subStatusGroup').style.display = shelf === 'read' ? 'none' : 'block';
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditModal();
+});
+</script>

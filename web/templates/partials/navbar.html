@@ -1,0 +1,29 @@
+{{define "navbar"}}
+<nav class="navbar">
+    <a href="/" class="navbar-brand">Spines</a>
+    <div class="navbar-menu">
+        {{if .IsAdmin}}
+            {{/* Admin context */}}
+            <a href="/admin" class="navbar-item">Dashboard</a>
+            <a href="/admin/users" class="navbar-item">Users</a>
+            <form method="POST" action="/admin/logout" class="navbar-form">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                <button type="submit" class="navbar-item navbar-btn">Logout</button>
+            </form>
+        {{else if .CurrentUser}}
+            {{/* Logged-in user context */}}
+            <a href="/my-books" class="navbar-item">My Books</a>
+            <a href="/profile" class="navbar-item">Profile</a>
+            <a href="/u/{{.CurrentUser.Username}}" class="navbar-item">View Public Page</a>
+            <form method="POST" action="/logout" class="navbar-form">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                <button type="submit" class="navbar-item navbar-btn">Logout</button>
+            </form>
+        {{else}}
+            {{/* Public context */}}
+            <a href="/" class="navbar-item">Home</a>
+            <a href="/login" class="navbar-item">Login</a>
+        {{end}}
+    </div>
+</nav>
+{{end}}

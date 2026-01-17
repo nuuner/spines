@@ -1,0 +1,123 @@
+<div class="page-header">
+    <h1>Add Book</h1>
+    <div class="page-header-actions">
+        <a href="/my-books/search{{if .Query}}?q={{urlquery .Query}}{{end}}" class="btn btn-secondary">Back to Search</a>
+    </div>
+</div>
+
+<section class="section">
+    <div class="add-book-preview">
+        {{if .GoogleBooksID}}
+        <img src="/api/images/book/{{.GoogleBooksID}}" alt="{{.Title}}" class="book-cover-large">
+        {{else}}
+        <div class="book-cover-large-placeholder"></div>
+        {{end}}
+        <div class="add-book-info">
+            <h2>{{.Title}}</h2>
+            {{if .Authors}}<p class="authors">{{.Authors}}</p>{{end}}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <form method="POST" action="/my-books" class="form add-book-form-full">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="google_books_id" value="{{.GoogleBooksID}}">
+        <input type="hidden" name="title" value="{{.Title}}">
+        <input type="hidden" name="authors" value="{{.Authors}}">
+        <input type="hidden" name="thumbnail_url" value="{{.ThumbnailURL}}">
+
+        <div class="form-group">
+            <label>Which shelf?</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="shelf" value="want_to_read" required onchange="updateSubStatus()">
+                    <span>Want to Read</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="shelf" value="currently_reading" onchange="updateSubStatus()">
+                    <span>Currently Reading</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="shelf" value="read" onchange="updateSubStatus()">
+                    <span>Read</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="sub-status-want" class="sub-status-group" style="display: none;">
+            <label>Do you own this book?</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="already_own">
+                    <span>Already own</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="need_to_buy">
+                    <span>Do not own</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="">
+                    <span>Skip</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="sub-status-reading" class="sub-status-group" style="display: none;">
+            <label>How far along are you?</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="just_started">
+                    <span>Just started</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="25_percent">
+                    <span>25%</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="50_percent">
+                    <span>50%</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="75_percent">
+                    <span>75%</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="almost_finished">
+                    <span>Almost finished</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sub_status" value="">
+                    <span>Skip</span>
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add to Shelf</button>
+    </form>
+</section>
+
+<script>
+function updateSubStatus() {
+    var shelf = document.querySelector('input[name="shelf"]:checked');
+    var wantSection = document.getElementById('sub-status-want');
+    var readingSection = document.getElementById('sub-status-reading');
+
+    // Clear all sub_status selections
+    document.querySelectorAll('.sub-status-group input[type="radio"]').forEach(function(r) {
+        r.checked = false;
+    });
+
+    // Hide all
+    wantSection.style.display = 'none';
+    readingSection.style.display = 'none';
+
+    if (shelf) {
+        if (shelf.value === 'want_to_read') {
+            wantSection.style.display = 'block';
+        } else if (shelf.value === 'currently_reading') {
+            readingSection.style.display = 'block';
+        }
+    }
+}
+</script>

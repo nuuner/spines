@@ -1,0 +1,65 @@
+<div class="page-header">
+    <h1>Edit User: {{.User.DisplayName}}</h1>
+    <div class="page-header-actions">
+        <a href="/u/{{.User.Username}}" class="btn btn-secondary">View Public Profile</a>
+    </div>
+</div>
+
+{{if .Error}}
+<div class="error-message">{{.Error}}</div>
+{{end}}
+
+{{if .Success}}
+<div class="success-message">{{.Success}}</div>
+{{end}}
+
+<section class="section">
+    <h2>User Information</h2>
+    <div class="form-container">
+        <form method="POST" action="/admin/users/{{.User.ID}}" class="form">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="form-group">
+                <label for="username">Username (URL slug)</label>
+                <input type="text" id="username" name="username" required pattern="[a-z0-9-]+" value="{{.User.Username}}">
+            </div>
+            <div class="form-group">
+                <label for="display_name">Display Name</label>
+                <input type="text" id="display_name" name="display_name" required value="{{.User.DisplayName}}">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3">{{.User.Description}}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <h2>User Login</h2>
+    <div class="form-container">
+        {{if .User.HasPassword}}
+        <p>Login is <strong>enabled</strong> for this user.</p>
+        <form method="POST" action="/admin/users/{{.User.ID}}/password/clear" class="form" onsubmit="return confirm('This will disable login for this user. Continue?');">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <button type="submit" class="btn btn-danger">Disable Login</button>
+        </form>
+        <hr style="margin: 1.5rem 0;">
+        {{else}}
+        <p>Login is <strong>disabled</strong> for this user. Set a password to enable login.</p>
+        {{end}}
+
+        <form method="POST" action="/admin/users/{{.User.ID}}/password" class="form">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="form-group">
+                <label for="password">{{if .User.HasPassword}}New {{end}}Password</label>
+                <input type="password" id="password" name="password" required minlength="8">
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+            </div>
+            <button type="submit" class="btn btn-primary">{{if .User.HasPassword}}Change Password{{else}}Set Password{{end}}</button>
+        </form>
+    </div>
+</section>
