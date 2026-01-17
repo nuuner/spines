@@ -711,6 +711,44 @@ body {
     .add-book-info h2 {
         font-size: 1.25rem;
     }
+
+    .avatar-large {
+        width: 120px;
+        height: 120px;
+    }
+
+    .avatar-medium {
+        width: 60px;
+        height: 60px;
+    }
+
+    .avatar-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .avatar-actions {
+        align-items: center;
+        text-align: center;
+    }
+
+    .user-page-header {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .user-page-header .avatar-medium {
+        width: 60px;
+        height: 60px;
+    }
+
+    .user-page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .shelves-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Add Book Page */
@@ -874,20 +912,9 @@ body {
     margin-bottom: 1rem;
 }
 
-.modal-content .form-group label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-}
-
 .modal-content .form-group select,
 .modal-content .form-group input {
     width: 100%;
-    padding: 0.5rem;
-    font-size: 0.95rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
 }
 
 .modal-content .btn {
@@ -998,52 +1025,9 @@ body {
     margin-top: 0.25rem;
 }
 
-/* Responsive adjustments for avatars */
-@media (max-width: 768px) {
-    .avatar-large {
-        width: 120px;
-        height: 120px;
-    }
-
-    .avatar-medium {
-        width: 60px;
-        height: 60px;
-    }
-
-    .avatar-section {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .avatar-actions {
-        align-items: center;
-        text-align: center;
-    }
-
-    .user-page-header {
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .user-page-header .avatar-medium {
-        width: 60px;
-        height: 60px;
-    }
-
-    .user-page-header h1 {
-        font-size: 1.5rem;
-    }
-}
-
 /* Side-by-side shelves for public user page */
 .shelves-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
-}
-
-@media (max-width: 768px) {
-    .shelves-row {
-        grid-template-columns: 1fr;
-    }
 }
