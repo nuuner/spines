@@ -662,7 +662,26 @@ body {
         font-size: 0.65rem;
     }
 
-    .admin-book-item,
+    .admin-book-item {
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .admin-book-item .book-thumb {
+        width: 32px;
+        height: 48px;
+    }
+
+    .admin-book-item .book-details {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .admin-book-item .btn-small {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
     .search-result-item {
         flex-direction: column;
         align-items: flex-start;
