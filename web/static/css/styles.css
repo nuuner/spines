@@ -48,6 +48,9 @@ body {
     background-color: var(--color-bg);
     color: var(--color-text);
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Navbar */
@@ -103,6 +106,25 @@ body {
     font-family: inherit;
 }
 
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 1rem 2rem;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+
+.footer a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.footer a:hover {
+    color: var(--color-text);
+}
+
 /* Page header - simple page title with optional actions */
 .page-header {
     display: flex;
@@ -131,6 +153,8 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    flex: 1;
+    width: 100%;
 }
 
 /* Header */
