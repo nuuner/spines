@@ -987,3 +987,16 @@ body {
         align-items: flex-start;
     }
 }
+
+/* Side-by-side shelves for public user page */
+.shelves-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .shelves-row {
+        grid-template-columns: 1fr;
+    }
+}
