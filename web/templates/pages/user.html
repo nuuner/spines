@@ -36,53 +36,83 @@
 </section>
 {{end}}
 
-{{if .Shelves.WantToRead}}
-<section class="shelf">
-    <h2>Want to Read</h2>
-    <div class="book-grid">
-        {{range .Shelves.WantToRead}}
-        <div class="book-card">
-            {{if .Book.GoogleBooksID}}
-            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
-            {{else}}
-            <div class="book-cover-placeholder"></div>
-            {{end}}
-            <div class="book-info">
-                <h3 class="book-title">{{.Book.Title}}</h3>
-                {{if .Book.Authors}}
-                <p class="book-authors">{{.Book.Authors}}</p>
+{{if or .Shelves.WantToRead .Shelves.Read}}
+<div class="shelves-row">
+    {{if .Shelves.WantToRead}}
+    <section class="shelf">
+        <h2>Want to Read</h2>
+        <div class="book-grid" id="shelf-want-to-read">
+            {{range $i, $book := .Shelves.WantToRead}}
+            {{if lt $i $.PublicShelfInitialLimit}}
+            <div class="book-card">
+                {{if $book.Book.GoogleBooksID}}
+                <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-cover">
+                {{else}}
+                <div class="book-cover-placeholder"></div>
                 {{end}}
-                {{if .SubStatus.Valid}}
-                <span class="book-status">{{.SubStatusDisplay}}</span>
-                {{end}}
+                <div class="book-info">
+                    <h3 class="book-title">{{$book.Book.Title}}</h3>
+                    {{if $book.Book.Authors}}
+                    <p class="book-authors">{{$book.Book.Authors}}</p>
+                    {{end}}
+                    {{if $book.SubStatus.Valid}}
+                    <span class="book-status">{{$book.SubStatusDisplay}}</span>
+                    {{end}}
+                </div>
             </div>
-        </div>
-        {{end}}
-    </div>
-</section>
-{{end}}
+            {{end}}
+            {{end}}
 
-{{if .Shelves.Read}}
-<section class="shelf">
-    <h2>Read</h2>
-    <div class="book-grid">
-        {{range .Shelves.Read}}
-        <div class="book-card">
-            {{if .Book.GoogleBooksID}}
-            <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
-            {{else}}
-            <div class="book-cover-placeholder"></div>
+            {{if gt .WantToReadTotal $.PublicShelfInitialLimit}}
+            <button class="shelf-expand-btn"
+                    hx-get="/u/{{.User.Username}}/shelf/want_to_read?offset={{$.PublicShelfInitialLimit}}"
+                    hx-target="this"
+                    hx-swap="outerHTML">
+                (show {{subtract .WantToReadTotal $.PublicShelfInitialLimit}} more)
+            </button>
             {{end}}
-            <div class="book-info">
-                <h3 class="book-title">{{.Book.Title}}</h3>
-                {{if .Book.Authors}}
-                <p class="book-authors">{{.Book.Authors}}</p>
-                {{end}}
-            </div>
         </div>
-        {{end}}
-    </div>
-</section>
+    </section>
+    {{else}}
+    <section class="shelf"></section>
+    {{end}}
+
+    {{if .Shelves.Read}}
+    <section class="shelf">
+        <h2>Read</h2>
+        <div class="book-grid" id="shelf-read">
+            {{range $i, $book := .Shelves.Read}}
+            {{if lt $i $.PublicShelfInitialLimit}}
+            <div class="book-card">
+                {{if $book.Book.GoogleBooksID}}
+                <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-cover">
+                {{else}}
+                <div class="book-cover-placeholder"></div>
+                {{end}}
+                <div class="book-info">
+                    <h3 class="book-title">{{$book.Book.Title}}</h3>
+                    {{if $book.Book.Authors}}
+                    <p class="book-authors">{{$book.Book.Authors}}</p>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+            {{end}}
+
+            {{if gt .ReadTotal $.PublicShelfInitialLimit}}
+            <button class="shelf-expand-btn"
+                    hx-get="/u/{{.User.Username}}/shelf/read?offset={{$.PublicShelfInitialLimit}}"
+                    hx-target="this"
+                    hx-swap="outerHTML">
+                (show {{subtract .ReadTotal $.PublicShelfInitialLimit}} more)
+            </button>
+            {{end}}
+        </div>
+    </section>
+    {{else}}
+    <section class="shelf"></section>
+    {{end}}
+</div>
 {{end}}
 
 {{if not .Shelves.CurrentlyReading}}

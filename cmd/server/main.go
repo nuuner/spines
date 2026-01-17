@@ -66,6 +66,7 @@ func main() {
 	app.Get("/", handlers.Dashboard)
 	app.Get("/api/images/book/:id", handlers.ProxyBookCover)
 	app.Get("/u/:username", handlers.UserPage)
+	app.Get("/u/:username/shelf/:shelf", handlers.GetPublicShelfBooks)
 
 	// User auth routes (with rate limiting on login)
 	app.Get("/login", handlers.UserLoginPage)

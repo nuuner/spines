@@ -1,0 +1,29 @@
+{{range .Books}}
+<div class="book-card">
+    {{if .Book.GoogleBooksID}}
+    <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
+    {{else}}
+    <div class="book-cover-placeholder"></div>
+    {{end}}
+    <div class="book-info">
+        <h3 class="book-title">{{.Book.Title}}</h3>
+        {{if .Book.Authors}}
+        <p class="book-authors">{{.Book.Authors}}</p>
+        {{end}}
+        {{if eq .Shelf "want_to_read"}}
+            {{if .SubStatus.Valid}}
+            <span class="book-status">{{.SubStatusDisplay}}</span>
+            {{end}}
+        {{end}}
+    </div>
+</div>
+{{end}}
+
+{{if gt .Remaining 0}}
+<button class="shelf-expand-btn"
+        hx-get="/u/{{.Username}}/shelf/{{.Shelf}}?offset={{.NextOffset}}"
+        hx-target="this"
+        hx-swap="outerHTML">
+    (show {{.Remaining}} more)
+</button>
+{{end}}
