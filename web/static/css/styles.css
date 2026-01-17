@@ -667,11 +667,6 @@ body {
         padding: 0.5rem;
     }
 
-    .admin-book-item .book-thumb {
-        width: 32px;
-        height: 48px;
-    }
-
     .admin-book-item .book-details {
         min-width: 0;
         flex: 1;
