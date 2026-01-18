@@ -1152,11 +1152,28 @@ body {
     background-color: var(--profile-bg);
     color: var(--profile-text);
     padding: 2rem;
+    padding-top: 2rem;
     border-radius: 0;
-    margin: -2rem;
+    /* Extend to full viewport width */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-top: -2rem;
     margin-bottom: -2rem;
+    padding-left: calc(50vw - 50% + 2rem);
+    padding-right: calc(50vw - 50% + 2rem);
     padding-bottom: 3rem;
-    min-height: calc(100vh - 120px);
+    min-height: calc(100vh - 60px);
+}
+
+@media (max-width: 768px) {
+    .profile-content {
+        padding: 1rem;
+        padding-left: calc(50vw - 50% + 1rem);
+        padding-right: calc(50vw - 50% + 1rem);
+        padding-bottom: 2rem;
+        margin-top: -1rem;
+        margin-bottom: -1rem;
+    }
 }
 
 .profile-content .page-header {
@@ -1223,15 +1240,6 @@ body {
 
 .profile-content .empty-state {
     color: var(--profile-text-muted);
-}
-
-@media (max-width: 768px) {
-    .profile-content {
-        margin: -1rem;
-        margin-bottom: -1rem;
-        padding: 1rem;
-        padding-bottom: 2rem;
-    }
 }
 
 /* Theme selector styles */
