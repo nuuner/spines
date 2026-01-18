@@ -21,5 +21,11 @@ func Dashboard(c *fiber.Ctx) error {
 
 	return c.Render("pages/dashboard", NavData(c, fiber.Map{
 		"Users": users,
+		// SEO metadata
+		"PageTitle":       "Readers",
+		"MetaDescription": "Discover book collections and reading lists on Spines",
+		"OGTitle":         "Spines - Track Your Reading",
+		"OGDescription":   "Discover book collections and reading lists on Spines",
+		"OGType":          "website",
 	}), "layouts/base")
 }

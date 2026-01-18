@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nuuner/spines/internal/models"
@@ -32,13 +33,39 @@ func UserPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error loading books")
 	}
 
+	// Build meta description
+	metaDesc := user.DisplayName + "'s book collection on Spines"
+	if user.Description != "" {
+		metaDesc = user.Description
+	}
+
+	// Count total books for description enhancement
+	totalBooks := len(shelves.WantToRead) + len(shelves.Read) + len(shelves.CurrentlyReading)
+	if totalBooks > 0 && user.Description == "" {
+		metaDesc = user.DisplayName + " has " + formatBookCount(totalBooks) + " on their reading list"
+	}
+
 	return c.Render("pages/user", NavData(c, fiber.Map{
 		"User":                    user,
 		"Shelves":                 shelves,
 		"WantToReadTotal":         len(shelves.WantToRead),
 		"ReadTotal":               len(shelves.Read),
 		"PublicShelfInitialLimit": publicShelfInitialLimit,
+		// SEO metadata
+		"PageTitle":       user.DisplayName,
+		"MetaDescription": metaDesc,
+		"OGTitle":         user.DisplayName + " - Spines",
+		"OGDescription":   metaDesc,
+		"OGImage":         user.GetProfilePictureURL(),
+		"OGType":          "profile",
 	}), "layouts/base")
+}
+
+func formatBookCount(count int) string {
+	if count == 1 {
+		return "1 book"
+	}
+	return strconv.Itoa(count) + " books"
 }
 
 func GetPublicShelfBooks(c *fiber.Ctx) error {

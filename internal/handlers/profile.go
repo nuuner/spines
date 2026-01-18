@@ -12,6 +12,9 @@ func ProfilePage(c *fiber.Ctx) error {
 		"User":    user,
 		"Error":   c.Query("error"),
 		"Success": c.Query("success"),
+		// SEO metadata
+		"PageTitle":  "My Profile",
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 

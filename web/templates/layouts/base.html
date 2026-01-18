@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spines</title>
+    <title>{{if .PageTitle}}{{.PageTitle}} - Spines{{else}}Spines{{end}}</title>
+    {{if .MetaDescription}}<meta name="description" content="{{.MetaDescription}}">{{end}}
+    {{if .MetaRobots}}<meta name="robots" content="{{.MetaRobots}}">{{end}}
+    {{if .OGTitle}}<meta property="og:title" content="{{.OGTitle}}">{{end}}
+    {{if .OGDescription}}<meta property="og:description" content="{{.OGDescription}}">{{end}}
+    {{if .OGImage}}<meta property="og:image" content="{{.OGImage}}">{{end}}
+    {{if .OGType}}<meta property="og:type" content="{{.OGType}}">{{end}}
+    {{if .OGURL}}<meta property="og:url" content="{{.OGURL}}">{{end}}
+    <meta property="og:site_name" content="Spines">
+    {{if .CanonicalURL}}<link rel="canonical" href="{{.CanonicalURL}}">{{end}}
     <link rel="stylesheet" href="/static/css/styles.css">
     <script src="/static/js/htmx.min.js"></script>
 </head>

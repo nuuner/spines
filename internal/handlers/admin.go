@@ -16,6 +16,9 @@ func AdminDashboard(c *fiber.Ctx) error {
 
 	return c.Render("pages/admin/dashboard", NavData(c, fiber.Map{
 		"Users": users,
+		// SEO metadata
+		"PageTitle":  "Admin Dashboard",
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 
@@ -28,6 +31,9 @@ func AdminUsersList(c *fiber.Ctx) error {
 	return c.Render("pages/admin/users", NavData(c, fiber.Map{
 		"Users": users,
 		"Error": c.Query("error"),
+		// SEO metadata
+		"PageTitle":  "Manage Users",
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 
@@ -66,6 +72,9 @@ func AdminEditUser(c *fiber.Ctx) error {
 		"User":    user,
 		"Error":   c.Query("error"),
 		"Success": c.Query("success"),
+		// SEO metadata
+		"PageTitle":  "Edit User",
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 
