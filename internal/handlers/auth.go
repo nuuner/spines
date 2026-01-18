@@ -26,6 +26,9 @@ func (h *AuthHandler) LoginPage(c *fiber.Ctx) error {
 
 	return c.Render("pages/admin/login", NavData(c, fiber.Map{
 		"Error": c.Query("error"),
+		// SEO metadata
+		"PageTitle":  "Admin Login",
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 

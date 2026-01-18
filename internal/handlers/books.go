@@ -41,6 +41,9 @@ func (h *BooksHandler) ManageUserBooks(c *fiber.Ctx) error {
 		"User":    user,
 		"Shelves": shelves,
 		"Error":   c.Query("error"),
+		// SEO metadata
+		"PageTitle":  "Manage Books - " + user.DisplayName,
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 
@@ -77,6 +80,9 @@ func (h *BooksHandler) SearchBooks(c *fiber.Ctx) error {
 				"Query":   query,
 				"Error":   "Failed to search books: " + err.Error(),
 				"Results": nil,
+				// SEO metadata
+				"PageTitle":  "Search Books - " + user.DisplayName,
+				"MetaRobots": "noindex, nofollow",
 			}), "layouts/base")
 		}
 	}
@@ -93,6 +99,9 @@ func (h *BooksHandler) SearchBooks(c *fiber.Ctx) error {
 		"User":    user,
 		"Query":   query,
 		"Results": results,
+		// SEO metadata
+		"PageTitle":  "Search Books - " + user.DisplayName,
+		"MetaRobots": "noindex, nofollow",
 	}), "layouts/base")
 }
 
