@@ -10,6 +10,7 @@ func ProfilePage(c *fiber.Ctx) error {
 
 	return c.Render("pages/user/profile", NavData(c, fiber.Map{
 		"User":    user,
+		"Themes":  models.ValidThemes,
 		"Error":   c.Query("error"),
 		"Success": c.Query("success"),
 		// SEO metadata
@@ -65,4 +66,21 @@ func ChangePassword(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect("/profile?success=Password+changed+successfully")
+}
+
+func UpdateTheme(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+
+	theme := c.FormValue("theme")
+
+	if !models.IsValidTheme(theme) {
+		return c.Redirect("/profile?error=Invalid+theme+selected")
+	}
+
+	err := models.UpdateUserTheme(user.ID, theme)
+	if err != nil {
+		return c.Redirect("/profile?error=Failed+to+update+theme")
+	}
+
+	return c.Redirect("/profile?success=Theme+updated+successfully")
 }

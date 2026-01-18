@@ -32,6 +32,27 @@
 </section>
 
 <section class="section">
+    <h2>Profile Theme</h2>
+    <p class="avatar-help" style="margin-bottom: 1rem;">Choose a color theme for your public profile page.</p>
+    <form method="POST" action="/profile/theme" class="form">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <div class="theme-selector">
+            {{range $key, $name := .Themes}}
+            <label class="theme-option" data-theme="{{$key}}">
+                <input type="radio" name="theme" value="{{$key}}" {{if eq $.User.Theme $key}}checked{{end}}>
+                <div class="theme-preview">
+                    <div class="theme-preview-bg"></div>
+                    <div class="theme-preview-surface"></div>
+                </div>
+                <span class="theme-name">{{$name}}</span>
+            </label>
+            {{end}}
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Theme</button>
+    </form>
+</section>
+
+<section class="section">
     <h2>Profile Information</h2>
     <div class="form-container">
         <form method="POST" action="/profile" class="form">

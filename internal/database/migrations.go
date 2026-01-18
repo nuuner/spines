@@ -78,6 +78,10 @@ func runMigrations() error {
 			name: "add_profile_picture_to_users",
 			sql:  "ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT NULL",
 		},
+		{
+			name: "add_theme_to_users",
+			sql:  "ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'",
+		},
 	}
 
 	// Create migrations table if not exists
