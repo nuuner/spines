@@ -1152,10 +1152,11 @@ body {
     background-color: var(--profile-bg);
     color: var(--profile-text);
     padding: 2rem;
-    border-radius: 8px;
+    border-radius: 0;
     margin: -2rem;
-    margin-top: 0;
-    padding-top: 0;
+    margin-bottom: -2rem;
+    padding-bottom: 3rem;
+    min-height: calc(100vh - 120px);
 }
 
 .profile-content .page-header {
@@ -1222,6 +1223,15 @@ body {
 
 .profile-content .empty-state {
     color: var(--profile-text-muted);
+}
+
+@media (max-width: 768px) {
+    .profile-content {
+        margin: -1rem;
+        margin-bottom: -1rem;
+        padding: 1rem;
+        padding-bottom: 2rem;
+    }
 }
 
 /* Theme selector styles */
