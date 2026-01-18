@@ -2,8 +2,8 @@
 *.db
 data/
 
-# Upload directory (mounted as volume)
-uploads/
+# Upload directory (mounted as volume) - only exclude root level
+/uploads/
 
 # Environment files
 .env

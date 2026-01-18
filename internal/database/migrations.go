@@ -82,6 +82,26 @@ func runMigrations() error {
 			name: "add_theme_to_users",
 			sql:  "ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'",
 		},
+		{
+			name: "add_isbn_13_to_books",
+			sql:  "ALTER TABLE books ADD COLUMN isbn_13 TEXT DEFAULT NULL",
+		},
+		{
+			name: "add_isbn_10_to_books",
+			sql:  "ALTER TABLE books ADD COLUMN isbn_10 TEXT DEFAULT NULL",
+		},
+		{
+			name: "add_page_count_to_books",
+			sql:  "ALTER TABLE books ADD COLUMN page_count INTEGER DEFAULT NULL",
+		},
+		{
+			name: "create_isbn_13_index",
+			sql:  "CREATE INDEX IF NOT EXISTS idx_books_isbn_13 ON books(isbn_13)",
+		},
+		{
+			name: "create_isbn_10_index",
+			sql:  "CREATE INDEX IF NOT EXISTS idx_books_isbn_10 ON books(isbn_10)",
+		},
 	}
 
 	// Create migrations table if not exists

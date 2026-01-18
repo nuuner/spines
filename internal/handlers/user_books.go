@@ -102,6 +102,9 @@ func (h *UserBooksHandler) AddBookPage(c *fiber.Ctx) error {
 	title := c.Query("title")
 	authors := c.Query("authors")
 	thumbnailURL := c.Query("thumbnail_url")
+	isbn13 := c.Query("isbn_13")
+	isbn10 := c.Query("isbn_10")
+	pageCount := c.QueryInt("page_count", 0)
 	query := c.Query("q")
 
 	if googleBooksID == "" || title == "" {
@@ -114,6 +117,9 @@ func (h *UserBooksHandler) AddBookPage(c *fiber.Ctx) error {
 		"Title":         title,
 		"Authors":       authors,
 		"ThumbnailURL":  thumbnailURL,
+		"ISBN13":        isbn13,
+		"ISBN10":        isbn10,
+		"PageCount":     pageCount,
 		"Query":         query,
 		// SEO metadata
 		"PageTitle":  "Add Book",
@@ -128,6 +134,9 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 	title := c.FormValue("title")
 	authors := c.FormValue("authors")
 	thumbnailURL := c.FormValue("thumbnail_url")
+	isbn13 := c.FormValue("isbn_13")
+	isbn10 := c.FormValue("isbn_10")
+	pageCount, _ := strconv.Atoi(c.FormValue("page_count"))
 	shelf := c.FormValue("shelf")
 	subStatus := c.FormValue("sub_status")
 
@@ -139,7 +148,7 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 		return c.Redirect("/my-books?error=Invalid+shelf")
 	}
 
-	book, err := models.GetOrCreateBook(googleBooksID, title, authors, thumbnailURL)
+	book, err := models.GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13, isbn10, pageCount, h.Config.GoogleBooksAPIKey)
 	if err != nil {
 		return c.Redirect("/my-books?error=Failed+to+create+book")
 	}

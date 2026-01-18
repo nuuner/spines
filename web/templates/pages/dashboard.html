@@ -8,6 +8,12 @@
         {{if .Description}}
         <p class="line-clamp-3">{{.Description}}</p>
         {{end}}
+        {{if .CurrentlyReading}}
+        <div class="currently-reading">
+            <span class="currently-reading-label">Currently reading</span>
+            <span class="currently-reading-title line-clamp-1">{{.CurrentlyReading.Book.Title}}</span>
+        </div>
+        {{end}}
     </a>
     {{end}}
 </div>

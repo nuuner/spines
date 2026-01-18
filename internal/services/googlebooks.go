@@ -30,6 +30,8 @@ type GoogleVolumeInfo struct {
 	ImageLinks          *GoogleImageLinks    `json:"imageLinks"`
 	IndustryIdentifiers []IndustryIdentifier `json:"industryIdentifiers"`
 	PageCount           int                  `json:"pageCount"`
+	PublishedDate       string               `json:"publishedDate"`
+	Language            string               `json:"language"`
 }
 
 type IndustryIdentifier struct {
@@ -47,6 +49,11 @@ type BookSearchResult struct {
 	Title         string
 	Authors       string
 	ThumbnailURL  string
+	ISBN13        string
+	ISBN10        string
+	PageCount     int
+	PublishedYear string
+	Language      string
 }
 
 func SearchBooks(query string, apiKey string) ([]BookSearchResult, error) {
@@ -83,11 +90,55 @@ func SearchBooks(query string, apiKey string) ([]BookSearchResult, error) {
 	}
 
 	var books []BookSearchResult
+	seenISBN13 := make(map[string]bool)
+	seenISBN10 := make(map[string]bool)
+
 	for _, item := range result.Items {
 		book := BookSearchResult{
 			GoogleBooksID: item.ID,
 			Title:         item.VolumeInfo.Title,
-			Authors:       strings.Join(item.VolumeInfo.Authors, ", "),
+			PageCount:     item.VolumeInfo.PageCount,
+			Language:      item.VolumeInfo.Language,
+		}
+
+		// Extract year from publishedDate (formats: "2021", "2021-05", "2021-05-04")
+		if len(item.VolumeInfo.PublishedDate) >= 4 {
+			book.PublishedYear = item.VolumeInfo.PublishedDate[:4]
+		}
+
+		// Defensive nil check for authors
+		if item.VolumeInfo.Authors != nil {
+			book.Authors = strings.Join(item.VolumeInfo.Authors, ", ")
+		}
+
+		// Extract ISBNs from IndustryIdentifiers
+		for _, identifier := range item.VolumeInfo.IndustryIdentifiers {
+			switch identifier.Type {
+			case "ISBN_13":
+				book.ISBN13 = identifier.Identifier
+			case "ISBN_10":
+				book.ISBN10 = identifier.Identifier
+			}
+		}
+
+		// Deduplicate by ISBN - skip if we've seen this ISBN before
+		isDuplicate := false
+		if book.ISBN13 != "" {
+			if seenISBN13[book.ISBN13] {
+				isDuplicate = true
+			} else {
+				seenISBN13[book.ISBN13] = true
+			}
+		}
+		if !isDuplicate && book.ISBN10 != "" {
+			if seenISBN10[book.ISBN10] {
+				isDuplicate = true
+			} else {
+				seenISBN10[book.ISBN10] = true
+			}
+		}
+		if isDuplicate {
+			continue
 		}
 
 		if item.VolumeInfo.ImageLinks != nil {
@@ -110,5 +161,91 @@ func SearchBooks(query string, apiKey string) ([]BookSearchResult, error) {
 	searchCache.Set(query, books)
 
 	return books, nil
+}
+
+// GetBookByISBN fetches a book from Google Books API using ISBN for canonical lookup.
+// Tries ISBN-13 first, then falls back to ISBN-10 if needed.
+// Returns nil if no book is found.
+func GetBookByISBN(isbn13, isbn10, apiKey string) (*BookSearchResult, error) {
+	// Try ISBN-13 first, then ISBN-10
+	isbns := []string{isbn13, isbn10}
+	for _, isbn := range isbns {
+		if isbn == "" {
+			continue
+		}
+
+		baseURL := "https://www.googleapis.com/books/v1/volumes"
+		params := url.Values{}
+		params.Set("q", "isbn:"+isbn)
+		params.Set("maxResults", "1")
+		params.Set("printType", "books")
+
+		if apiKey != "" {
+			params.Set("key", apiKey)
+		}
+
+		resp, err := http.Get(baseURL + "?" + params.Encode())
+		if err != nil {
+			log.Printf("[GetBookByISBN] HTTP error for ISBN %s: %v", isbn, err)
+			continue
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("[GetBookByISBN] API returned status %d for ISBN %s", resp.StatusCode, isbn)
+			continue
+		}
+
+		var result GoogleBooksResponse
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			log.Printf("[GetBookByISBN] JSON decode error for ISBN %s: %v", isbn, err)
+			continue
+		}
+
+		if len(result.Items) == 0 {
+			continue
+		}
+
+		item := result.Items[0]
+		book := &BookSearchResult{
+			GoogleBooksID: item.ID,
+			Title:         item.VolumeInfo.Title,
+			PageCount:     item.VolumeInfo.PageCount,
+			Language:      item.VolumeInfo.Language,
+		}
+
+		// Extract year from publishedDate
+		if len(item.VolumeInfo.PublishedDate) >= 4 {
+			book.PublishedYear = item.VolumeInfo.PublishedDate[:4]
+		}
+
+		// Defensive nil check for authors
+		if item.VolumeInfo.Authors != nil {
+			book.Authors = strings.Join(item.VolumeInfo.Authors, ", ")
+		}
+
+		// Extract ISBNs from IndustryIdentifiers
+		for _, identifier := range item.VolumeInfo.IndustryIdentifiers {
+			switch identifier.Type {
+			case "ISBN_13":
+				book.ISBN13 = identifier.Identifier
+			case "ISBN_10":
+				book.ISBN10 = identifier.Identifier
+			}
+		}
+
+		if item.VolumeInfo.ImageLinks != nil {
+			if item.VolumeInfo.ImageLinks.Thumbnail != "" {
+				book.ThumbnailURL = strings.Replace(item.VolumeInfo.ImageLinks.Thumbnail, "http://", "https://", 1)
+			} else if item.VolumeInfo.ImageLinks.SmallThumbnail != "" {
+				book.ThumbnailURL = strings.Replace(item.VolumeInfo.ImageLinks.SmallThumbnail, "http://", "https://", 1)
+			}
+		}
+
+		log.Printf("[GetBookByISBN] Found canonical book for ISBN %s: %s", isbn, book.Title)
+		return book, nil
+	}
+
+	return nil, nil
 }
 
