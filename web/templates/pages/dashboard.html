@@ -2,7 +2,7 @@
 
 <div class="user-grid">
     {{range .Users}}
-    <a href="/u/{{.Username}}" class="user-card">
+    <a href="/u/{{.Username}}" class="user-card theme-{{.Theme}}">
         <img src="{{.GetProfilePictureURL}}" alt="{{.DisplayName}}" class="avatar-medium">
         <h2>{{.DisplayName}}</h2>
         {{if .Description}}
