@@ -15,7 +15,18 @@ type User struct {
 	Description    string
 	PasswordHash   sql.NullString
 	ProfilePicture sql.NullString
+	Theme          string
 	CreatedAt      time.Time
+}
+
+// ValidThemes defines the allowed theme values
+var ValidThemes = map[string]string{
+	"light":    "Light",
+	"dark":     "Dark",
+	"ocean":    "Ocean",
+	"forest":   "Forest",
+	"sunset":   "Sunset",
+	"lavender": "Lavender",
 }
 
 // HasPassword returns true if the user has a password set
@@ -52,7 +63,7 @@ func HashPassword(password string) (string, error) {
 }
 
 func GetAllUsers() ([]User, error) {
-	rows, err := database.DB.Query("SELECT id, username, display_name, description, password_hash, profile_picture, created_at FROM users ORDER BY display_name")
+	rows, err := database.DB.Query("SELECT id, username, display_name, description, password_hash, profile_picture, COALESCE(theme, 'light'), created_at FROM users ORDER BY display_name")
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +72,7 @@ func GetAllUsers() ([]User, error) {
 	var users []User
 	for rows.Next() {
 		var u User
-		if err := rows.Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.CreatedAt); err != nil {
+		if err := rows.Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.Theme, &u.CreatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, u)
@@ -72,9 +83,9 @@ func GetAllUsers() ([]User, error) {
 func GetUserByID(id int64) (*User, error) {
 	var u User
 	err := database.DB.QueryRow(
-		"SELECT id, username, display_name, description, password_hash, profile_picture, created_at FROM users WHERE id = ?",
+		"SELECT id, username, display_name, description, password_hash, profile_picture, COALESCE(theme, 'light'), created_at FROM users WHERE id = ?",
 		id,
-	).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.CreatedAt)
+	).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.Theme, &u.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +95,9 @@ func GetUserByID(id int64) (*User, error) {
 func GetUserByUsername(username string) (*User, error) {
 	var u User
 	err := database.DB.QueryRow(
-		"SELECT id, username, display_name, description, password_hash, profile_picture, created_at FROM users WHERE username = ?",
+		"SELECT id, username, display_name, description, password_hash, profile_picture, COALESCE(theme, 'light'), created_at FROM users WHERE username = ?",
 		username,
-	).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.CreatedAt)
+	).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.Theme, &u.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -170,4 +181,23 @@ func ClearUserProfilePicture(userID int64) error {
 		userID,
 	)
 	return err
+}
+
+// UpdateUserTheme sets the color theme for a user's profile
+func UpdateUserTheme(userID int64, theme string) error {
+	// Validate theme
+	if _, ok := ValidThemes[theme]; !ok {
+		theme = "light"
+	}
+	_, err := database.DB.Exec(
+		"UPDATE users SET theme = ? WHERE id = ?",
+		theme, userID,
+	)
+	return err
+}
+
+// IsValidTheme checks if a theme value is valid
+func IsValidTheme(theme string) bool {
+	_, ok := ValidThemes[theme]
+	return ok
 }

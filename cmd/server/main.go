@@ -79,6 +79,7 @@ func main() {
 	app.Post("/profile/password", middleware.UserAuth, handlers.ChangePassword)
 	app.Post("/profile/avatar", middleware.UserAuth, handlers.UploadAvatar)
 	app.Post("/profile/avatar/remove", middleware.UserAuth, handlers.RemoveAvatar)
+	app.Post("/profile/theme", middleware.UserAuth, handlers.UpdateTheme)
 
 	// User routes (protected) - my books
 	myBooks := app.Group("/my-books", middleware.UserAuth)
