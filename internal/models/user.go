@@ -80,6 +80,30 @@ func GetAllUsers() ([]User, error) {
 	return users, rows.Err()
 }
 
+// GetUsersWithBooks returns all users who have at least one book on any shelf
+func GetUsersWithBooks() ([]User, error) {
+	rows, err := database.DB.Query(`
+		SELECT DISTINCT u.id, u.username, u.display_name, u.description, u.password_hash, u.profile_picture, COALESCE(u.theme, 'light'), u.created_at
+		FROM users u
+		INNER JOIN user_books ub ON u.id = ub.user_id
+		ORDER BY u.display_name
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Username, &u.DisplayName, &u.Description, &u.PasswordHash, &u.ProfilePicture, &u.Theme, &u.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, rows.Err()
+}
+
 func GetUserByID(id int64) (*User, error) {
 	var u User
 	err := database.DB.QueryRow(

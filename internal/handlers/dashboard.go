@@ -14,7 +14,7 @@ type UserWithCurrentBook struct {
 }
 
 func Dashboard(c *fiber.Ctx) error {
-	users, err := models.GetAllUsers()
+	users, err := models.GetUsersWithBooks()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error loading users")
 	}
