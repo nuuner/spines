@@ -189,6 +189,32 @@ func GetUserEvents(userID int64, limit int) ([]Event, error) {
 	return scanEvents(rows)
 }
 
+// GetLatestNEventsPerUser returns the most recent N events per user, sorted by date
+// This is useful for the dashboard news feed showing multiple events per user
+func GetLatestNEventsPerUser(eventsPerUser, totalLimit int) ([]Event, error) {
+	// Use a window function to get the latest N events per user
+	rows, err := database.DB.Query(`
+		SELECT e.id, e.user_id, e.event_type, e.book_id, e.shelf, e.old_value, e.new_value, e.created_at,
+		       u.id, u.username, u.display_name, u.description, u.password_hash, u.profile_picture, COALESCE(u.theme, 'light'), u.created_at,
+		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
+		FROM (
+			SELECT *, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at DESC) as rn
+			FROM events
+		) e
+		INNER JOIN users u ON e.user_id = u.id
+		LEFT JOIN books b ON e.book_id = b.id
+		WHERE e.rn <= ?
+		ORDER BY e.created_at DESC
+		LIMIT ?
+	`, eventsPerUser, totalLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanEvents(rows)
+}
+
 // GetLatestEventPerUserByIDs returns the most recent event for each specified user
 func GetLatestEventPerUserByIDs(userIDs []int64) (map[int64]*Event, error) {
 	if len(userIDs) == 0 {

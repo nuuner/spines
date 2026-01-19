@@ -22,3 +22,47 @@
     </a>
     {{end}}
 </div>
+
+{{if .Events}}
+<section class="activity-section">
+    <h2>Recent Activity</h2>
+    <div class="activity-feed">
+        {{range .Events}}
+        <div class="activity-item">
+            <div class="activity-icon {{.EventType}}">
+                {{if eq .EventType "book_added"}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                {{else if eq .EventType "book_moved"}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                {{else if eq .EventType "reading_progress"}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                {{else if eq .EventType "book_removed"}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                {{else}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                {{end}}
+            </div>
+            <div class="activity-content">
+                {{if .User}}
+                <a href="/u/{{.User.Username}}" class="activity-user">{{.User.DisplayName}}</a>
+                {{end}}
+                <span class="activity-text">{{.EventDescription}}</span>
+                <span class="activity-time">{{.TimeAgo}}</span>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</section>
+{{end}}

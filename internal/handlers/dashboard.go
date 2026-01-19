@@ -53,8 +53,15 @@ func Dashboard(c *fiber.Ctx) error {
 		usersWithBooks[i], usersWithBooks[j] = usersWithBooks[j], usersWithBooks[i]
 	})
 
+	// Fetch latest 2 events per user for the activity feed
+	events, err := models.GetLatestNEventsPerUser(2, 50)
+	if err != nil {
+		events = []models.Event{}
+	}
+
 	return c.Render("pages/dashboard", NavData(c, fiber.Map{
-		"Users": usersWithBooks,
+		"Users":  usersWithBooks,
+		"Events": events,
 		// SEO metadata
 		"PageTitle":       "Readers",
 		"MetaDescription": "Discover book collections and reading lists on Spines",

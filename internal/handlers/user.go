@@ -45,9 +45,16 @@ func UserPage(c *fiber.Ctx) error {
 		metaDesc = user.DisplayName + " has " + formatBookCount(totalBooks) + " on their reading list"
 	}
 
+	// Fetch latest 6 events for this user
+	events, err := models.GetUserEvents(user.ID, 6)
+	if err != nil {
+		events = []models.Event{}
+	}
+
 	return c.Render("pages/user", NavData(c, fiber.Map{
 		"User":                    user,
 		"Shelves":                 shelves,
+		"Events":                  events,
 		"WantToReadTotal":         len(shelves.WantToRead),
 		"ReadTotal":               len(shelves.Read),
 		"PublicShelfInitialLimit": publicShelfInitialLimit,
