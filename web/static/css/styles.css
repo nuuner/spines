@@ -352,6 +352,45 @@ body {
     margin: 0;
 }
 
+/* Currently reading section in user cards */
+.user-card .currently-reading {
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.user-card .book-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.user-card .currently-reading-title {
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Theme-specific currently reading colors */
+.user-card.theme-light .book-icon { color: #888888; }
+.user-card.theme-light .currently-reading-title { color: #555555; }
+
+.user-card.theme-dark .book-icon { color: #888888; }
+.user-card.theme-dark .currently-reading-title { color: #cccccc; }
+
+.user-card.theme-ocean .book-icon { color: #5a8a9a; }
+.user-card.theme-ocean .currently-reading-title { color: #2a5a6a; }
+
+.user-card.theme-forest .book-icon { color: #5a8c5a; }
+.user-card.theme-forest .currently-reading-title { color: #2a5c2a; }
+
+.user-card.theme-sunset .book-icon { color: #a07050; }
+.user-card.theme-sunset .currently-reading-title { color: #5e3e30; }
+
+.user-card.theme-lavender .book-icon { color: #9c70a8; }
+.user-card.theme-lavender .currently-reading-title { color: #5a3060; }
+
 /* Shelves and books */
 .shelf {
     margin-bottom: 2rem;
