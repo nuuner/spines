@@ -354,7 +354,7 @@ body {
 
 /* Currently reading section in user cards */
 .user-card .currently-reading {
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
     display: flex;
     align-items: center;
     gap: 0.35rem;
