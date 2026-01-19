@@ -117,8 +117,8 @@ func GetLatestEventPerUser(limit int) ([]Event, error) {
 		var ev Event
 		var u User
 		var b Book
-		var bookID, bookCreatedAt sql.NullInt64
-		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail sql.NullString
+		var bookID sql.NullInt64
+		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail, bookCreatedAt sql.NullString
 
 		if err := rows.Scan(
 			&ev.ID, &ev.UserID, &ev.EventType, &ev.BookID, &ev.Shelf, &ev.OldValue, &ev.NewValue, &ev.CreatedAt,
@@ -138,7 +138,9 @@ func GetLatestEventPerUser(limit int) ([]Event, error) {
 			b.Authors = bookAuthors.String
 			b.ThumbnailURL = bookThumbnail.String
 			if bookCreatedAt.Valid {
-				b.CreatedAt = time.Unix(bookCreatedAt.Int64, 0)
+				if t, err := time.Parse("2006-01-02 15:04:05", bookCreatedAt.String); err == nil {
+					b.CreatedAt = t
+				}
 			}
 			ev.Book = &b
 		}
@@ -255,8 +257,8 @@ func GetLatestEventPerUserByIDs(userIDs []int64) (map[int64]*Event, error) {
 		var ev Event
 		var u User
 		var b Book
-		var bookID, bookCreatedAt sql.NullInt64
-		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail sql.NullString
+		var bookID sql.NullInt64
+		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail, bookCreatedAt sql.NullString
 
 		if err := rows.Scan(
 			&ev.ID, &ev.UserID, &ev.EventType, &ev.BookID, &ev.Shelf, &ev.OldValue, &ev.NewValue, &ev.CreatedAt,
@@ -275,7 +277,9 @@ func GetLatestEventPerUserByIDs(userIDs []int64) (map[int64]*Event, error) {
 			b.Authors = bookAuthors.String
 			b.ThumbnailURL = bookThumbnail.String
 			if bookCreatedAt.Valid {
-				b.CreatedAt = time.Unix(bookCreatedAt.Int64, 0)
+				if t, err := time.Parse("2006-01-02 15:04:05", bookCreatedAt.String); err == nil {
+					b.CreatedAt = t
+				}
 			}
 			ev.Book = &b
 		}
@@ -292,8 +296,8 @@ func scanEvents(rows *sql.Rows) ([]Event, error) {
 		var ev Event
 		var u User
 		var b Book
-		var bookID, bookCreatedAt sql.NullInt64
-		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail sql.NullString
+		var bookID sql.NullInt64
+		var bookGoogleID, bookTitle, bookAuthors, bookThumbnail, bookCreatedAt sql.NullString
 
 		if err := rows.Scan(
 			&ev.ID, &ev.UserID, &ev.EventType, &ev.BookID, &ev.Shelf, &ev.OldValue, &ev.NewValue, &ev.CreatedAt,
@@ -312,7 +316,9 @@ func scanEvents(rows *sql.Rows) ([]Event, error) {
 			b.Authors = bookAuthors.String
 			b.ThumbnailURL = bookThumbnail.String
 			if bookCreatedAt.Valid {
-				b.CreatedAt = time.Unix(bookCreatedAt.Int64, 0)
+				if t, err := time.Parse("2006-01-02 15:04:05", bookCreatedAt.String); err == nil {
+					b.CreatedAt = t
+				}
 			}
 			ev.Book = &b
 		}
