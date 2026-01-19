@@ -163,6 +163,9 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 		return c.Redirect("/my-books?error=Failed+to+add+book+to+shelf")
 	}
 
+	// Create event for book added to shelf
+	_ = models.CreateBookAddedEvent(user.ID, book.ID, shelf)
+
 	return c.Redirect("/my-books")
 }
 
@@ -189,6 +192,17 @@ func (h *UserBooksHandler) UpdateBook(c *fiber.Ctx) error {
 		return c.Redirect("/my-books?error=Invalid+shelf")
 	}
 
+	// Get current state before updating
+	currentBook, _ := models.GetUserBook(user.ID, bookID)
+	oldShelf := ""
+	oldSubStatus := ""
+	if currentBook != nil {
+		oldShelf = currentBook.Shelf
+		if currentBook.SubStatus.Valid {
+			oldSubStatus = currentBook.SubStatus.String
+		}
+	}
+
 	var nullSubStatus sql.NullString
 	if subStatus != "" {
 		nullSubStatus = sql.NullString{String: subStatus, Valid: true}
@@ -197,6 +211,17 @@ func (h *UserBooksHandler) UpdateBook(c *fiber.Ctx) error {
 	err = models.UpdateUserBook(user.ID, bookID, shelf, nullSubStatus)
 	if err != nil {
 		return c.Redirect("/my-books?error=Failed+to+update+book")
+	}
+
+	// Create appropriate event based on what changed
+	if currentBook != nil {
+		if oldShelf != shelf {
+			// Shelf changed - create book moved event
+			_ = models.CreateBookMovedEvent(user.ID, bookID, oldShelf, shelf)
+		} else if oldSubStatus != subStatus && shelf == "currently_reading" {
+			// Reading progress changed
+			_ = models.CreateReadingProgressEvent(user.ID, bookID, oldSubStatus, subStatus)
+		}
 	}
 
 	return c.Redirect("/my-books")
@@ -210,9 +235,21 @@ func (h *UserBooksHandler) RemoveBook(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid book ID")
 	}
 
+	// Get current state before removing (for the event)
+	currentBook, _ := models.GetUserBook(user.ID, bookID)
+	oldShelf := ""
+	if currentBook != nil {
+		oldShelf = currentBook.Shelf
+	}
+
 	err = models.RemoveBookFromShelf(user.ID, bookID)
 	if err != nil {
 		return c.Redirect("/my-books?error=Failed+to+remove+book")
+	}
+
+	// Create event for book removed
+	if oldShelf != "" {
+		_ = models.CreateBookRemovedEvent(user.ID, bookID, oldShelf)
 	}
 
 	return c.Redirect("/my-books")
