@@ -102,6 +102,29 @@ func runMigrations() error {
 			name: "create_isbn_10_index",
 			sql:  "CREATE INDEX IF NOT EXISTS idx_books_isbn_10 ON books(isbn_10)",
 		},
+		{
+			name: "create_events_table",
+			sql: `CREATE TABLE IF NOT EXISTS events (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				user_id INTEGER NOT NULL,
+				event_type TEXT NOT NULL,
+				book_id INTEGER,
+				shelf TEXT,
+				old_value TEXT,
+				new_value TEXT,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+				FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+			)`,
+		},
+		{
+			name: "create_events_user_id_index",
+			sql:  "CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)",
+		},
+		{
+			name: "create_events_created_at_index",
+			sql:  "CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at DESC)",
+		},
 	}
 
 	// Create migrations table if not exists

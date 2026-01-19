@@ -65,6 +65,9 @@ func main() {
 	// Public routes
 	app.Get("/", handlers.Dashboard)
 	app.Get("/api/images/book/:id", handlers.ProxyBookCover)
+	app.Get("/api/events", handlers.GetLatestEvents)
+	app.Get("/api/events/recent", handlers.GetRecentEvents)
+	app.Get("/api/events/user/:username", handlers.GetUserEvents)
 	app.Get("/u/:username", handlers.UserPage)
 	app.Get("/u/:username/shelf/:shelf", handlers.GetPublicShelfBooks)
 
