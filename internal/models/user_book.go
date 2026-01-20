@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"sort"
 	"strings"
 	"time"
 
@@ -82,6 +83,20 @@ func GetUserBooks(userID int64) (*ShelfBooks, error) {
 			shelves.Read = append(shelves.Read, ub)
 		}
 	}
+
+	// Sort read shelf by finished_reading_at DESC (most recently read first)
+	sort.Slice(shelves.Read, func(i, j int) bool {
+		iTime := "1970-01-01"
+		jTime := "1970-01-01"
+		if shelves.Read[i].FinishedReadingAt.Valid {
+			iTime = shelves.Read[i].FinishedReadingAt.String
+		}
+		if shelves.Read[j].FinishedReadingAt.Valid {
+			jTime = shelves.Read[j].FinishedReadingAt.String
+		}
+		return iTime > jTime // DESC order
+	})
+
 	return shelves, rows.Err()
 }
 
@@ -147,6 +162,16 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 		return nil, 0, err
 	}
 
+	// Determine ORDER BY clause based on shelf
+	// For "read" shelf: sort by finished_reading_at DESC (most recently read first)
+	// For other shelves: sort by added_at DESC (newest first)
+	var orderBy string
+	if shelf == "read" {
+		orderBy = "ORDER BY COALESCE(ub.finished_reading_at, '1970-01-01') DESC"
+	} else {
+		orderBy = "ORDER BY COALESCE(ub.added_at, '1970-01-01') DESC"
+	}
+
 	// Get paginated books
 	rows, err := database.DB.Query(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
@@ -155,7 +180,7 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
 		WHERE ub.user_id = ? AND ub.shelf = ?
-		ORDER BY COALESCE(ub.added_at, '1970-01-01') DESC
+		`+orderBy+`
 		LIMIT ? OFFSET ?
 	`, userID, shelf, limit, offset)
 	if err != nil {
