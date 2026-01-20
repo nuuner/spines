@@ -96,6 +96,36 @@
             </div>
         </div>
 
+        <div id="rating-read" class="sub-status-group" style="display: none;">
+            <label>How would you rate this book?</label>
+            <div class="star-rating-input">
+                <label class="star-option">
+                    <input type="radio" name="rating" value="1">
+                    <span class="star-label">1 star</span>
+                </label>
+                <label class="star-option">
+                    <input type="radio" name="rating" value="2">
+                    <span class="star-label">2 stars</span>
+                </label>
+                <label class="star-option">
+                    <input type="radio" name="rating" value="3">
+                    <span class="star-label">3 stars</span>
+                </label>
+                <label class="star-option">
+                    <input type="radio" name="rating" value="4">
+                    <span class="star-label">4 stars</span>
+                </label>
+                <label class="star-option">
+                    <input type="radio" name="rating" value="5">
+                    <span class="star-label">5 stars</span>
+                </label>
+                <label class="star-option">
+                    <input type="radio" name="rating" value="">
+                    <span class="star-label">Skip</span>
+                </label>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Add to Shelf</button>
     </form>
 </section>
@@ -105,8 +135,9 @@ function updateSubStatus() {
     var shelf = document.querySelector('input[name="shelf"]:checked');
     var wantSection = document.getElementById('sub-status-want');
     var readingSection = document.getElementById('sub-status-reading');
+    var ratingSection = document.getElementById('rating-read');
 
-    // Clear all sub_status selections
+    // Clear all sub_status and rating selections
     document.querySelectorAll('.sub-status-group input[type="radio"]').forEach(function(r) {
         r.checked = false;
     });
@@ -114,12 +145,15 @@ function updateSubStatus() {
     // Hide all
     wantSection.style.display = 'none';
     readingSection.style.display = 'none';
+    ratingSection.style.display = 'none';
 
     if (shelf) {
         if (shelf.value === 'want_to_read') {
             wantSection.style.display = 'block';
         } else if (shelf.value === 'currently_reading') {
             readingSection.style.display = 'block';
+        } else if (shelf.value === 'read') {
+            ratingSection.style.display = 'block';
         }
     }
 }

@@ -139,6 +139,7 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 	pageCount, _ := strconv.Atoi(c.FormValue("page_count"))
 	shelf := c.FormValue("shelf")
 	subStatus := c.FormValue("sub_status")
+	ratingStr := c.FormValue("rating")
 
 	if googleBooksID == "" || title == "" || shelf == "" {
 		return c.Redirect("/my-books?error=Missing+required+fields")
@@ -158,7 +159,15 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 		nullSubStatus = sql.NullString{String: subStatus, Valid: true}
 	}
 
-	err = models.AddBookToShelf(user.ID, book.ID, shelf, nullSubStatus)
+	var nullRating sql.NullInt64
+	if ratingStr != "" {
+		rating, err := strconv.ParseInt(ratingStr, 10, 64)
+		if err == nil && rating >= 1 && rating <= 5 {
+			nullRating = sql.NullInt64{Int64: rating, Valid: true}
+		}
+	}
+
+	err = models.AddBookToShelf(user.ID, book.ID, shelf, nullSubStatus, nullRating)
 	if err != nil {
 		return c.Redirect("/my-books?error=Failed+to+add+book+to+shelf")
 	}
@@ -183,6 +192,7 @@ func (h *UserBooksHandler) UpdateBook(c *fiber.Ctx) error {
 
 	shelf := c.FormValue("shelf")
 	subStatus := c.FormValue("sub_status")
+	ratingStr := c.FormValue("rating")
 
 	if shelf == "" {
 		return c.Redirect("/my-books?error=Shelf+is+required")
@@ -208,7 +218,15 @@ func (h *UserBooksHandler) UpdateBook(c *fiber.Ctx) error {
 		nullSubStatus = sql.NullString{String: subStatus, Valid: true}
 	}
 
-	err = models.UpdateUserBook(user.ID, bookID, shelf, nullSubStatus)
+	var nullRating sql.NullInt64
+	if ratingStr != "" {
+		rating, err := strconv.ParseInt(ratingStr, 10, 64)
+		if err == nil && rating >= 1 && rating <= 5 {
+			nullRating = sql.NullInt64{Int64: rating, Valid: true}
+		}
+	}
+
+	err = models.UpdateUserBook(user.ID, bookID, shelf, nullSubStatus, nullRating)
 	if err != nil {
 		return c.Redirect("/my-books?error=Failed+to+update+book")
 	}

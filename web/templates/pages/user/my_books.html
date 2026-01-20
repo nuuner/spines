@@ -28,7 +28,7 @@
                     {{if $book.StartedReadingAtDisplay}}<span class="book-meta-item">Started {{$book.StartedReadingAtDisplay}}</span>{{end}}
                 </div>
             </div>
-            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'currently_reading', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'currently_reading', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}', 0)">Edit</button>
             <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
                 <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
                 <button type="submit" class="btn btn-small btn-danger">Remove</button>
@@ -68,7 +68,7 @@
                     {{if $book.AddedAtDisplay}}<span class="book-meta-item">Added {{$book.AddedAtDisplay}}</span>{{end}}
                 </div>
             </div>
-            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'want_to_read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'want_to_read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}', 0)">Edit</button>
             <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
                 <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
                 <button type="submit" class="btn btn-small btn-danger">Remove</button>
@@ -104,10 +104,11 @@
                 <strong>{{$book.Book.Title}}</strong>
                 {{if $book.Book.Authors}}<br><span class="authors">{{$book.Book.Authors}}</span>{{end}}
                 <div class="book-meta">
+                    {{if $book.Rating.Valid}}<span class="book-meta-item star-rating">{{$book.RatingDisplay}}</span>{{end}}
                     {{if $book.FinishedReadingAtDisplay}}<span class="book-meta-item">Finished {{$book.FinishedReadingAtDisplay}}</span>{{end}}
                 </div>
             </div>
-            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}')">Edit</button>
+            <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}', {{$book.RatingValue}})">Edit</button>
             <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
                 <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
                 <button type="submit" class="btn btn-small btn-danger">Remove</button>
@@ -160,6 +161,17 @@
                     <option value="">No status</option>
                 </select>
             </div>
+            <div class="form-group" id="ratingGroup" style="display: none;">
+                <label>Rating</label>
+                <select name="rating" id="editRating">
+                    <option value="">No rating</option>
+                    <option value="1">1 star</option>
+                    <option value="2">2 stars</option>
+                    <option value="3">3 stars</option>
+                    <option value="4">4 stars</option>
+                    <option value="5">5 stars</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </form>
         <hr class="modal-divider">
@@ -204,14 +216,17 @@ const subStatusOptions = {
 };
 
 let currentBookId = null;
+let currentRating = 0;
 
-function openEditModal(bookId, shelf, subStatus, addedAt, startedAt, finishedAt) {
+function openEditModal(bookId, shelf, subStatus, addedAt, startedAt, finishedAt, rating) {
     currentBookId = bookId;
+    currentRating = rating || 0;
     document.getElementById('editForm').action = '/my-books/' + bookId;
     document.getElementById('datesForm').action = '/my-books/' + bookId + '/dates';
     document.getElementById('editShelf').value = shelf;
     updateSubStatusOptions();
     document.getElementById('editSubStatus').value = subStatus;
+    document.getElementById('editRating').value = currentRating > 0 ? currentRating : '';
     document.getElementById('editAddedAt').value = addedAt;
     document.getElementById('editStartedAt').value = startedAt;
     document.getElementById('editFinishedAt').value = finishedAt;
@@ -230,6 +245,14 @@ function updateSubStatusOptions() {
 
     // Hide sub-status for "read" shelf since it has no meaningful options
     document.getElementById('subStatusGroup').style.display = shelf === 'read' ? 'none' : 'block';
+
+    // Show rating only for "read" shelf
+    document.getElementById('ratingGroup').style.display = shelf === 'read' ? 'block' : 'none';
+
+    // Clear rating if not on read shelf
+    if (shelf !== 'read') {
+        document.getElementById('editRating').value = '';
+    }
 }
 
 // Close modal on Escape key

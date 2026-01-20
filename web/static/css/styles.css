@@ -606,6 +606,52 @@ body {
     color: var(--color-text-muted);
 }
 
+.star-rating {
+    color: #f59e0b;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+}
+
+.book-rating {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.star-rating-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.star-option {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--color-surface);
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.star-option:hover {
+    background-color: var(--color-bg);
+}
+
+.star-option input[type="radio"] {
+    display: none;
+}
+
+.star-option input[type="radio"]:checked + .star-label {
+    font-weight: 600;
+}
+
+.star-option:has(input[type="radio"]:checked) {
+    border-color: var(--color-accent);
+    background-color: var(--color-bg);
+}
+
 .inline-form {
     display: inline-flex;
     align-items: center;
