@@ -95,6 +95,9 @@
                         {{if $book.Book.Authors}}
                         <p class="book-authors">{{$book.Book.Authors}}</p>
                         {{end}}
+                        {{if $book.Rating.Valid}}
+                        <span class="book-rating star-rating">{{$book.RatingDisplay}}</span>
+                        {{end}}
                     </div>
                 </div>
                 {{end}}

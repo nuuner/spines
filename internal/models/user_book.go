@@ -17,6 +17,7 @@ type UserBook struct {
 	AddedAt           sql.NullString
 	StartedReadingAt  sql.NullString
 	FinishedReadingAt sql.NullString
+	Rating            sql.NullInt64
 	Book              *Book
 }
 
@@ -47,7 +48,7 @@ type ShelfBooks struct {
 func GetUserBooks(userID int64) (*ShelfBooks, error) {
 	rows, err := database.DB.Query(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
-		       ub.added_at, ub.started_reading_at, ub.finished_reading_at,
+		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
 		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
@@ -65,7 +66,7 @@ func GetUserBooks(userID int64) (*ShelfBooks, error) {
 		var b Book
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
-			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt,
+			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
 			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -100,7 +101,7 @@ func GetRandomCurrentlyReadingByUserIDs(userIDs []int64) (map[int64]*UserBook, e
 
 	query := `
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
-		       ub.added_at, ub.started_reading_at, ub.finished_reading_at,
+		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
 		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
@@ -120,7 +121,7 @@ func GetRandomCurrentlyReadingByUserIDs(userIDs []int64) (map[int64]*UserBook, e
 		var b Book
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
-			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt,
+			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
 			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -149,7 +150,7 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 	// Get paginated books
 	rows, err := database.DB.Query(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
-		       ub.added_at, ub.started_reading_at, ub.finished_reading_at,
+		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
 		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
@@ -168,7 +169,7 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 		var b Book
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
-			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt,
+			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
 			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, 0, err
@@ -183,69 +184,72 @@ func GetUserBook(userID, bookID int64) (*UserBook, error) {
 	var ub UserBook
 	err := database.DB.QueryRow(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
-		       ub.added_at, ub.started_reading_at, ub.finished_reading_at
+		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating
 		FROM user_books ub
 		WHERE ub.user_id = ? AND ub.book_id = ?
 	`, userID, bookID).Scan(&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
-		&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt)
+		&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating)
 	if err != nil {
 		return nil, err
 	}
 	return &ub, nil
 }
 
-func AddBookToShelf(userID, bookID int64, shelf string, subStatus sql.NullString) error {
+func AddBookToShelf(userID, bookID int64, shelf string, subStatus sql.NullString, rating sql.NullInt64) error {
 	var query string
 
 	switch shelf {
 	case "currently_reading":
 		query = `INSERT INTO user_books (user_id, book_id, shelf, sub_status, added_at, started_reading_at)
 		         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+		_, err := database.DB.Exec(query, userID, bookID, shelf, subStatus)
+		return err
 	case "read":
-		query = `INSERT INTO user_books (user_id, book_id, shelf, sub_status, added_at, started_reading_at, finished_reading_at)
-		         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+		query = `INSERT INTO user_books (user_id, book_id, shelf, sub_status, rating, added_at, started_reading_at, finished_reading_at)
+		         VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+		_, err := database.DB.Exec(query, userID, bookID, shelf, subStatus, rating)
+		return err
 	default:
 		query = `INSERT INTO user_books (user_id, book_id, shelf, sub_status, added_at)
 		         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`
+		_, err := database.DB.Exec(query, userID, bookID, shelf, subStatus)
+		return err
 	}
-
-	_, err := database.DB.Exec(query, userID, bookID, shelf, subStatus)
-	return err
 }
 
-func UpdateUserBook(userID, bookID int64, shelf string, subStatus sql.NullString) error {
-	var query string
-
+func UpdateUserBook(userID, bookID int64, shelf string, subStatus sql.NullString, rating sql.NullInt64) error {
 	switch shelf {
 	case "want_to_read":
-		// Moving backward: clear both timestamps
-		query = `UPDATE user_books
-		         SET shelf = ?, sub_status = ?, started_reading_at = NULL, finished_reading_at = NULL
-		         WHERE user_id = ? AND book_id = ?`
+		// Moving backward: clear both timestamps and rating
+		_, err := database.DB.Exec(`UPDATE user_books
+		         SET shelf = ?, sub_status = ?, rating = NULL, started_reading_at = NULL, finished_reading_at = NULL
+		         WHERE user_id = ? AND book_id = ?`, shelf, subStatus, userID, bookID)
+		return err
 	case "currently_reading":
 		// If finished_reading_at is set (re-read scenario), start fresh with new started_reading_at
-		// Otherwise, preserve existing started_reading_at or set it if NULL
-		query = `UPDATE user_books
-		         SET shelf = ?, sub_status = ?,
+		// Otherwise, preserve existing started_reading_at or set it if NULL. Clear rating.
+		_, err := database.DB.Exec(`UPDATE user_books
+		         SET shelf = ?, sub_status = ?, rating = NULL,
 		             started_reading_at = CASE
 		                 WHEN finished_reading_at IS NOT NULL THEN CURRENT_TIMESTAMP
 		                 ELSE COALESCE(started_reading_at, CURRENT_TIMESTAMP)
 		             END,
 		             finished_reading_at = NULL
-		         WHERE user_id = ? AND book_id = ?`
+		         WHERE user_id = ? AND book_id = ?`, shelf, subStatus, userID, bookID)
+		return err
 	case "read":
-		// Set finished_reading_at, preserve or set started_reading_at
-		query = `UPDATE user_books
-		         SET shelf = ?, sub_status = ?,
+		// Set finished_reading_at, preserve or set started_reading_at, set rating
+		_, err := database.DB.Exec(`UPDATE user_books
+		         SET shelf = ?, sub_status = ?, rating = ?,
 		             started_reading_at = COALESCE(started_reading_at, CURRENT_TIMESTAMP),
 		             finished_reading_at = CURRENT_TIMESTAMP
-		         WHERE user_id = ? AND book_id = ?`
+		         WHERE user_id = ? AND book_id = ?`, shelf, subStatus, rating, userID, bookID)
+		return err
 	default:
-		query = `UPDATE user_books SET shelf = ?, sub_status = ? WHERE user_id = ? AND book_id = ?`
+		_, err := database.DB.Exec(`UPDATE user_books SET shelf = ?, sub_status = ? WHERE user_id = ? AND book_id = ?`,
+			shelf, subStatus, userID, bookID)
+		return err
 	}
-
-	_, err := database.DB.Exec(query, shelf, subStatus, userID, bookID)
-	return err
 }
 
 func RemoveBookFromShelf(userID, bookID int64) error {
@@ -383,4 +387,24 @@ func (ub UserBook) FinishedReadingAtDisplay() string {
 		return ""
 	}
 	return t.Format("Jan 2, 2006")
+}
+
+// RatingDisplay returns the rating as a string of star characters
+func (ub UserBook) RatingDisplay() string {
+	if !ub.Rating.Valid {
+		return ""
+	}
+	stars := ""
+	for i := int64(0); i < ub.Rating.Int64; i++ {
+		stars += "*"
+	}
+	return stars
+}
+
+// RatingValue returns the rating as an int (0 if not set)
+func (ub UserBook) RatingValue() int {
+	if !ub.Rating.Valid {
+		return 0
+	}
+	return int(ub.Rating.Int64)
 }

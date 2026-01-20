@@ -125,6 +125,10 @@ func runMigrations() error {
 			name: "create_events_created_at_index",
 			sql:  "CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at DESC)",
 		},
+		{
+			name: "add_rating_to_user_books",
+			sql:  "ALTER TABLE user_books ADD COLUMN rating INTEGER DEFAULT NULL CHECK(rating IS NULL OR (rating >= 1 AND rating <= 5))",
+		},
 	}
 
 	// Create migrations table if not exists

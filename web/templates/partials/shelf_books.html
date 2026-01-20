@@ -14,11 +14,12 @@
                 {{if .SubStatusDisplay}}<span class="book-meta-item">{{.SubStatusDisplay}}</span>{{end}}
                 {{if .AddedAtDisplay}}<span class="book-meta-item">Added {{.AddedAtDisplay}}</span>{{end}}
             {{else if eq .Shelf "read"}}
+                {{if .Rating.Valid}}<span class="book-meta-item star-rating">{{.RatingDisplay}}</span>{{end}}
                 {{if .FinishedReadingAtDisplay}}<span class="book-meta-item">Finished {{.FinishedReadingAtDisplay}}</span>{{end}}
             {{end}}
         </div>
     </div>
-    <button type="button" class="btn btn-small" onclick="openEditModal({{.Book.ID}}, '{{.Shelf}}', '{{.SubStatus.String}}', '{{.AddedAtFormatted}}', '{{.StartedReadingAtFormatted}}', '{{.FinishedReadingAtFormatted}}')">Edit</button>
+    <button type="button" class="btn btn-small" onclick="openEditModal({{.Book.ID}}, '{{.Shelf}}', '{{.SubStatus.String}}', '{{.AddedAtFormatted}}', '{{.StartedReadingAtFormatted}}', '{{.FinishedReadingAtFormatted}}', {{.RatingValue}})">Edit</button>
     <form method="POST" action="/my-books/{{.Book.ID}}/delete" class="inline-form csrf-form" onsubmit="return confirm('Remove this book?');">
         <input type="hidden" name="csrf_token" class="csrf-token-input">
         <button type="submit" class="btn btn-small btn-danger">Remove</button>
