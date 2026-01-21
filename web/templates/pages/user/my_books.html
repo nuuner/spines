@@ -28,6 +28,11 @@
                     {{if $book.StartedReadingAtDisplay}}<span class="book-meta-item">Started {{$book.StartedReadingAtDisplay}}</span>{{end}}
                 </div>
             </div>
+            <form method="POST" action="/my-books/{{$book.Book.ID}}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <input type="hidden" name="shelf" value="read">
+                <button type="submit" class="btn btn-small btn-action">Finished reading</button>
+            </form>
             <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'currently_reading', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}', 0)">Edit</button>
             <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
                 <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
@@ -68,6 +73,12 @@
                     {{if $book.AddedAtDisplay}}<span class="book-meta-item">Added {{$book.AddedAtDisplay}}</span>{{end}}
                 </div>
             </div>
+            <form method="POST" action="/my-books/{{$book.Book.ID}}" class="inline-form">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                <input type="hidden" name="shelf" value="currently_reading">
+                <input type="hidden" name="sub_status" value="just_started">
+                <button type="submit" class="btn btn-small btn-action">Start reading</button>
+            </form>
             <button type="button" class="btn btn-small" onclick="openEditModal({{$book.Book.ID}}, 'want_to_read', '{{$book.SubStatus.String}}', '{{$book.AddedAtFormatted}}', '{{$book.StartedReadingAtFormatted}}', '{{$book.FinishedReadingAtFormatted}}', 0)">Edit</button>
             <form method="POST" action="/my-books/{{$book.Book.ID}}/delete" class="inline-form" onsubmit="return confirm('Remove this book?');">
                 <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">

@@ -228,6 +228,16 @@ body {
     color: white;
 }
 
+.btn-action {
+    color: #2563eb;
+    border-color: #2563eb;
+}
+
+.btn-action:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
 .btn-small {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
