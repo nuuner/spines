@@ -210,39 +210,3 @@ func (b Book) DescriptionText() string {
 	}
 	return ""
 }
-
-// UpdateBookDescription updates a book's description
-func UpdateBookDescription(bookID int64, description string) error {
-	var nullDescription sql.NullString
-	if description != "" {
-		nullDescription = sql.NullString{String: description, Valid: true}
-	}
-	_, err := database.DB.Exec(
-		"UPDATE books SET description = ? WHERE id = ?",
-		nullDescription, bookID,
-	)
-	return err
-}
-
-// GetBooksWithoutDescription returns all books that don't have a description set
-func GetBooksWithoutDescription() ([]Book, error) {
-	rows, err := database.DB.Query(`
-		SELECT id, google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count, created_at
-		FROM books
-		WHERE description IS NULL OR description = ''
-	`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var books []Book
-	for rows.Next() {
-		var b Book
-		if err := rows.Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt); err != nil {
-			return nil, err
-		}
-		books = append(books, b)
-	}
-	return books, rows.Err()
-}
