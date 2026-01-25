@@ -190,6 +190,51 @@
 </div>
 
 <script>
+// Sanitize HTML to allow only safe tags
+function sanitizeHtml(html) {
+    var allowedTags = ['p', 'br', 'b', 'i', 'em', 'strong', 'u', 'ul', 'ol', 'li', 'blockquote'];
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+
+    function sanitizeNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            return document.createTextNode(node.textContent);
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return null;
+        }
+
+        var tagName = node.tagName.toLowerCase();
+        var newNode;
+
+        if (allowedTags.indexOf(tagName) !== -1) {
+            newNode = document.createElement(tagName);
+        } else {
+            // Replace disallowed tags with a span (preserves content)
+            newNode = document.createDocumentFragment();
+        }
+
+        for (var i = 0; i < node.childNodes.length; i++) {
+            var sanitized = sanitizeNode(node.childNodes[i]);
+            if (sanitized) {
+                newNode.appendChild(sanitized);
+            }
+        }
+
+        return newNode;
+    }
+
+    var container = document.createElement('div');
+    var body = doc.body;
+    for (var i = 0; i < body.childNodes.length; i++) {
+        var sanitized = sanitizeNode(body.childNodes[i]);
+        if (sanitized) {
+            container.appendChild(sanitized);
+        }
+    }
+
+    return container.innerHTML;
+}
+
 function openSynopsisModal(element) {
     var title = element.getAttribute('data-title');
     var authors = element.getAttribute('data-authors');
@@ -203,7 +248,7 @@ function openSynopsisModal(element) {
     var noDescriptionEl = document.getElementById('synopsisModalNoDescription');
 
     if (description && description.trim() !== '') {
-        descriptionEl.textContent = description;
+        descriptionEl.innerHTML = sanitizeHtml(description);
         descriptionEl.style.display = 'block';
         noDescriptionEl.style.display = 'none';
     } else {
