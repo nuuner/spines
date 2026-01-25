@@ -129,6 +129,10 @@ func runMigrations() error {
 			name: "add_rating_to_user_books",
 			sql:  "ALTER TABLE user_books ADD COLUMN rating INTEGER DEFAULT NULL CHECK(rating IS NULL OR (rating >= 1 AND rating <= 5))",
 		},
+		{
+			name: "add_description_to_books",
+			sql:  "ALTER TABLE books ADD COLUMN description TEXT DEFAULT NULL",
+		},
 	}
 
 	// Create migrations table if not exists

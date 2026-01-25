@@ -50,7 +50,7 @@ func GetUserBooks(userID int64) (*ShelfBooks, error) {
 	rows, err := database.DB.Query(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
 		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
-		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
+		       b.id, b.google_books_id, b.title, b.authors, b.description, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
 		WHERE ub.user_id = ?
@@ -68,7 +68,7 @@ func GetUserBooks(userID int64) (*ShelfBooks, error) {
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
 			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
-			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
+			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -117,7 +117,7 @@ func GetRandomCurrentlyReadingByUserIDs(userIDs []int64) (map[int64]*UserBook, e
 	query := `
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
 		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
-		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
+		       b.id, b.google_books_id, b.title, b.authors, b.description, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
 		WHERE ub.shelf = 'currently_reading' AND ub.user_id IN (` + strings.Join(placeholders, ",") + `)
@@ -137,7 +137,7 @@ func GetRandomCurrentlyReadingByUserIDs(userIDs []int64) (map[int64]*UserBook, e
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
 			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
-			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
+			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -176,7 +176,7 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 	rows, err := database.DB.Query(`
 		SELECT ub.id, ub.user_id, ub.book_id, ub.shelf, ub.sub_status,
 		       ub.added_at, ub.started_reading_at, ub.finished_reading_at, ub.rating,
-		       b.id, b.google_books_id, b.title, b.authors, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
+		       b.id, b.google_books_id, b.title, b.authors, b.description, b.thumbnail_url, b.isbn_13, b.isbn_10, b.page_count, b.created_at
 		FROM user_books ub
 		JOIN books b ON ub.book_id = b.id
 		WHERE ub.user_id = ? AND ub.shelf = ?
@@ -195,7 +195,7 @@ func GetShelfBooksPaginated(userID int64, shelf string, offset, limit int) ([]Us
 		if err := rows.Scan(
 			&ub.ID, &ub.UserID, &ub.BookID, &ub.Shelf, &ub.SubStatus,
 			&ub.AddedAt, &ub.StartedReadingAt, &ub.FinishedReadingAt, &ub.Rating,
-			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
+			&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt,
 		); err != nil {
 			return nil, 0, err
 		}

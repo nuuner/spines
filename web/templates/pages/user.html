@@ -14,7 +14,7 @@
         <h2>Currently Reading</h2>
         <div class="book-grid">
             {{range .Shelves.CurrentlyReading}}
-            <div class="book-card">
+            <div class="book-card book-card-clickable" onclick="openSynopsisModal(this)" data-title="{{.Book.Title}}" data-authors="{{.Book.Authors}}" data-description="{{.Book.DescriptionText}}" data-cover="{{if .Book.GoogleBooksID}}/api/images/book/{{.Book.GoogleBooksID}}{{end}}">
                 {{if .Book.GoogleBooksID}}
                 <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
                 {{else}}
@@ -45,7 +45,7 @@
             <div class="book-grid" id="shelf-want-to-read">
                 {{range $i, $book := .Shelves.WantToRead}}
                 {{if lt $i $.PublicShelfInitialLimit}}
-                <div class="book-card">
+                <div class="book-card book-card-clickable" onclick="openSynopsisModal(this)" data-title="{{$book.Book.Title}}" data-authors="{{$book.Book.Authors}}" data-description="{{$book.Book.DescriptionText}}" data-cover="{{if $book.Book.GoogleBooksID}}/api/images/book/{{$book.Book.GoogleBooksID}}{{end}}">
                     {{if $book.Book.GoogleBooksID}}
                     <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-cover">
                     {{else}}
@@ -84,7 +84,7 @@
             <div class="book-grid" id="shelf-read">
                 {{range $i, $book := .Shelves.Read}}
                 {{if lt $i $.PublicShelfInitialLimit}}
-                <div class="book-card">
+                <div class="book-card book-card-clickable" onclick="openSynopsisModal(this)" data-title="{{$book.Book.Title}}" data-authors="{{$book.Book.Authors}}" data-description="{{$book.Book.DescriptionText}}" data-cover="{{if $book.Book.GoogleBooksID}}/api/images/book/{{$book.Book.GoogleBooksID}}{{end}}">
                     {{if $book.Book.GoogleBooksID}}
                     <img src="/api/images/book/{{$book.Book.GoogleBooksID}}" alt="{{$book.Book.Title}}" class="book-cover">
                     {{else}}
@@ -168,3 +168,68 @@
     {{end}}
     {{end}}
 </div>
+
+<!-- Book Synopsis Modal -->
+<div id="synopsisModal" class="modal" onclick="if(event.target===this)closeSynopsisModal()">
+    <div class="modal-content synopsis-modal-content">
+        <div class="modal-header">
+            <h3 id="synopsisModalTitle">Book Title</h3>
+            <button type="button" class="modal-close" onclick="closeSynopsisModal()">&times;</button>
+        </div>
+        <div class="synopsis-modal-body">
+            <div class="synopsis-book-cover">
+                <img id="synopsisModalCover" src="" alt="Book cover">
+            </div>
+            <div class="synopsis-book-details">
+                <p id="synopsisModalAuthors" class="synopsis-authors"></p>
+                <div id="synopsisModalDescription" class="synopsis-description"></div>
+                <p id="synopsisModalNoDescription" class="synopsis-no-description" style="display: none;">No synopsis available for this book.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openSynopsisModal(element) {
+    var title = element.getAttribute('data-title');
+    var authors = element.getAttribute('data-authors');
+    var description = element.getAttribute('data-description');
+    var cover = element.getAttribute('data-cover');
+
+    document.getElementById('synopsisModalTitle').textContent = title;
+    document.getElementById('synopsisModalAuthors').textContent = authors || '';
+
+    var descriptionEl = document.getElementById('synopsisModalDescription');
+    var noDescriptionEl = document.getElementById('synopsisModalNoDescription');
+
+    if (description && description.trim() !== '') {
+        descriptionEl.textContent = description;
+        descriptionEl.style.display = 'block';
+        noDescriptionEl.style.display = 'none';
+    } else {
+        descriptionEl.style.display = 'none';
+        noDescriptionEl.style.display = 'block';
+    }
+
+    var coverEl = document.getElementById('synopsisModalCover');
+    if (cover && cover.trim() !== '') {
+        coverEl.src = cover;
+        coverEl.style.display = 'block';
+    } else {
+        coverEl.style.display = 'none';
+    }
+
+    document.getElementById('synopsisModal').classList.add('open');
+}
+
+function closeSynopsisModal() {
+    document.getElementById('synopsisModal').classList.remove('open');
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSynopsisModal();
+    }
+});
+</script>
