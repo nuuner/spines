@@ -115,6 +115,7 @@ func main() {
 	admin.Post("/users/:id/books", booksHandler.AddBook)
 	admin.Post("/users/:id/books/:book_id", booksHandler.UpdateBook)
 	admin.Post("/users/:id/books/:book_id/delete", booksHandler.RemoveBook)
+	admin.Post("/books/backfill-descriptions", booksHandler.BackfillDescriptions)
 
 	log.Printf("Starting server on port %s", cfg.Port)
 	log.Fatal(app.Listen(":" + cfg.Port))

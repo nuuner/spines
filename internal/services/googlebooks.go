@@ -253,3 +253,60 @@ func GetBookByISBN(isbn13, isbn10, apiKey string) (*BookSearchResult, error) {
 	return nil, nil
 }
 
+// GetBookByGoogleBooksID fetches a book directly by its Google Books volume ID.
+// Returns the description and other details for backfilling existing records.
+func GetBookByGoogleBooksID(googleBooksID, apiKey string) (*BookSearchResult, error) {
+	if googleBooksID == "" {
+		return nil, fmt.Errorf("googleBooksID is required")
+	}
+
+	volumeURL := fmt.Sprintf("https://www.googleapis.com/books/v1/volumes/%s", googleBooksID)
+	if apiKey != "" {
+		volumeURL += "?key=" + apiKey
+	}
+
+	resp, err := http.Get(volumeURL)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API returned status %d", resp.StatusCode)
+	}
+
+	var item GoogleBookItem
+	if err := json.NewDecoder(resp.Body).Decode(&item); err != nil {
+		return nil, fmt.Errorf("JSON decode error: %v", err)
+	}
+
+	book := &BookSearchResult{
+		GoogleBooksID: item.ID,
+		Title:         item.VolumeInfo.Title,
+		Description:   item.VolumeInfo.Description,
+		PageCount:     item.VolumeInfo.PageCount,
+		Language:      item.VolumeInfo.Language,
+	}
+
+	if item.VolumeInfo.Authors != nil {
+		book.Authors = strings.Join(item.VolumeInfo.Authors, ", ")
+	}
+
+	for _, identifier := range item.VolumeInfo.IndustryIdentifiers {
+		switch identifier.Type {
+		case "ISBN_13":
+			book.ISBN13 = identifier.Identifier
+		case "ISBN_10":
+			book.ISBN10 = identifier.Identifier
+		}
+	}
+
+	if item.VolumeInfo.ImageLinks != nil {
+		if item.VolumeInfo.ImageLinks.Thumbnail != "" {
+			book.ThumbnailURL = strings.Replace(item.VolumeInfo.ImageLinks.Thumbnail, "http://", "https://", 1)
+		}
+	}
+
+	return book, nil
+}
+
