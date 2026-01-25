@@ -14,6 +14,7 @@ type Book struct {
 	GoogleBooksID string
 	Title         string
 	Authors       string
+	Description   sql.NullString
 	ThumbnailURL  string
 	ISBN13        sql.NullString
 	ISBN10        sql.NullString
@@ -24,9 +25,9 @@ type Book struct {
 func GetBookByGoogleID(googleBooksID string) (*Book, error) {
 	var b Book
 	err := database.DB.QueryRow(
-		"SELECT id, google_books_id, title, authors, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE google_books_id = ?",
+		"SELECT id, google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE google_books_id = ?",
 		googleBooksID,
-	).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
+	).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -36,17 +37,17 @@ func GetBookByGoogleID(googleBooksID string) (*Book, error) {
 func GetBookByID(id int64) (*Book, error) {
 	var b Book
 	err := database.DB.QueryRow(
-		"SELECT id, google_books_id, title, authors, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE id = ?",
+		"SELECT id, google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE id = ?",
 		id,
-	).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
+	).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return &b, nil
 }
 
-func CreateBook(googleBooksID, title, authors, thumbnailURL, isbn13, isbn10 string, pageCount int) (int64, error) {
-	var nullISBN13, nullISBN10 sql.NullString
+func CreateBook(googleBooksID, title, authors, description, thumbnailURL, isbn13, isbn10 string, pageCount int) (int64, error) {
+	var nullISBN13, nullISBN10, nullDescription sql.NullString
 	var nullPageCount sql.NullInt64
 
 	if isbn13 != "" {
@@ -55,13 +56,16 @@ func CreateBook(googleBooksID, title, authors, thumbnailURL, isbn13, isbn10 stri
 	if isbn10 != "" {
 		nullISBN10 = sql.NullString{String: isbn10, Valid: true}
 	}
+	if description != "" {
+		nullDescription = sql.NullString{String: description, Valid: true}
+	}
 	if pageCount > 0 {
 		nullPageCount = sql.NullInt64{Int64: int64(pageCount), Valid: true}
 	}
 
 	result, err := database.DB.Exec(
-		"INSERT INTO books (google_books_id, title, authors, thumbnail_url, isbn_13, isbn_10, page_count) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		googleBooksID, title, authors, thumbnailURL, nullISBN13, nullISBN10, nullPageCount,
+		"INSERT INTO books (google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		googleBooksID, title, authors, nullDescription, thumbnailURL, nullISBN13, nullISBN10, nullPageCount,
 	)
 	if err != nil {
 		return 0, err
@@ -76,9 +80,9 @@ func GetBookByISBN(isbn13, isbn10 string) (*Book, error) {
 	// Try ISBN-13 first
 	if isbn13 != "" {
 		err := database.DB.QueryRow(
-			"SELECT id, google_books_id, title, authors, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE isbn_13 = ?",
+			"SELECT id, google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE isbn_13 = ?",
 			isbn13,
-		).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
+		).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
 		if err == nil {
 			return &b, nil
 		}
@@ -87,9 +91,9 @@ func GetBookByISBN(isbn13, isbn10 string) (*Book, error) {
 	// Try ISBN-10
 	if isbn10 != "" {
 		err := database.DB.QueryRow(
-			"SELECT id, google_books_id, title, authors, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE isbn_10 = ?",
+			"SELECT id, google_books_id, title, authors, description, thumbnail_url, isbn_13, isbn_10, page_count, created_at FROM books WHERE isbn_10 = ?",
 			isbn10,
-		).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
+		).Scan(&b.ID, &b.GoogleBooksID, &b.Title, &b.Authors, &b.Description, &b.ThumbnailURL, &b.ISBN13, &b.ISBN10, &b.PageCount, &b.CreatedAt)
 		if err == nil {
 			return &b, nil
 		}
@@ -122,7 +126,7 @@ func UpdateBookISBN(bookID int64, isbn13, isbn10 string, pageCount int) error {
 
 // GetOrCreateBook creates a book or returns existing one (legacy function without ISBN support)
 func GetOrCreateBook(googleBooksID, title, authors, thumbnailURL string) (*Book, error) {
-	return GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, "", "", 0, "")
+	return GetOrCreateBookWithISBN(googleBooksID, title, authors, "", thumbnailURL, "", "", 0, "")
 }
 
 // GetOrCreateBookWithISBN performs ISBN-based deduplication and canonical lookup
@@ -131,7 +135,7 @@ func GetOrCreateBook(googleBooksID, title, authors, thumbnailURL string) (*Book,
 // 2. Check if book exists by Google Books ID → update with ISBN if missing, return book
 // 3. If book has ISBN, call Google Books API with isbn:{isbn} to get canonical edition
 // 4. Use canonical data (or original if lookup fails) to create new book record
-func GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13, isbn10 string, pageCount int, apiKey string) (*Book, error) {
+func GetOrCreateBookWithISBN(googleBooksID, title, authors, description, thumbnailURL, isbn13, isbn10 string, pageCount int, apiKey string) (*Book, error) {
 	// Step 1: Check if book exists by ISBN
 	if isbn13 != "" || isbn10 != "" {
 		book, err := GetBookByISBN(isbn13, isbn10)
@@ -158,6 +162,7 @@ func GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13
 	finalGoogleBooksID := googleBooksID
 	finalTitle := title
 	finalAuthors := authors
+	finalDescription := description
 	finalThumbnailURL := thumbnailURL
 	finalISBN13 := isbn13
 	finalISBN10 := isbn10
@@ -170,6 +175,7 @@ func GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13
 			finalGoogleBooksID = canonical.GoogleBooksID
 			finalTitle = canonical.Title
 			finalAuthors = canonical.Authors
+			finalDescription = canonical.Description
 			finalThumbnailURL = canonical.ThumbnailURL
 			finalISBN13 = canonical.ISBN13
 			finalISBN10 = canonical.ISBN10
@@ -189,10 +195,18 @@ func GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13
 	}
 
 	// Step 4: Create new book record
-	id, err := CreateBook(finalGoogleBooksID, finalTitle, finalAuthors, finalThumbnailURL, finalISBN13, finalISBN10, finalPageCount)
+	id, err := CreateBook(finalGoogleBooksID, finalTitle, finalAuthors, finalDescription, finalThumbnailURL, finalISBN13, finalISBN10, finalPageCount)
 	if err != nil {
 		return nil, err
 	}
 
 	return GetBookByID(id)
+}
+
+// DescriptionText returns the description as a string (empty if not set)
+func (b Book) DescriptionText() string {
+	if b.Description.Valid {
+		return b.Description.String
+	}
+	return ""
 }

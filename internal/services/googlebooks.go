@@ -27,6 +27,7 @@ type GoogleBookItem struct {
 type GoogleVolumeInfo struct {
 	Title               string               `json:"title"`
 	Authors             []string             `json:"authors"`
+	Description         string               `json:"description"`
 	ImageLinks          *GoogleImageLinks    `json:"imageLinks"`
 	IndustryIdentifiers []IndustryIdentifier `json:"industryIdentifiers"`
 	PageCount           int                  `json:"pageCount"`
@@ -48,6 +49,7 @@ type BookSearchResult struct {
 	GoogleBooksID string
 	Title         string
 	Authors       string
+	Description   string
 	ThumbnailURL  string
 	ISBN13        string
 	ISBN10        string
@@ -97,6 +99,7 @@ func SearchBooks(query string, apiKey string) ([]BookSearchResult, error) {
 		book := BookSearchResult{
 			GoogleBooksID: item.ID,
 			Title:         item.VolumeInfo.Title,
+			Description:   item.VolumeInfo.Description,
 			PageCount:     item.VolumeInfo.PageCount,
 			Language:      item.VolumeInfo.Language,
 		}
@@ -210,6 +213,7 @@ func GetBookByISBN(isbn13, isbn10, apiKey string) (*BookSearchResult, error) {
 		book := &BookSearchResult{
 			GoogleBooksID: item.ID,
 			Title:         item.VolumeInfo.Title,
+			Description:   item.VolumeInfo.Description,
 			PageCount:     item.VolumeInfo.PageCount,
 			Language:      item.VolumeInfo.Language,
 		}

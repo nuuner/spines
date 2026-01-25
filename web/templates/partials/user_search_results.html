@@ -18,7 +18,7 @@
                 {{if .Authors}}<br><span class="authors">{{.Authors}}</span>{{end}}
                 <br><span class="book-meta">{{if .PublishedYear}}{{.PublishedYear}}{{end}}{{if and .PublishedYear .Language}} · {{end}}{{if .Language}}{{.Language}}{{end}}{{if and (or .PublishedYear .Language) .ISBN10}} · {{end}}{{if .ISBN10}}{{.ISBN10}}{{end}}{{if and (or .PublishedYear .Language .ISBN10) .PageCount}} · {{end}}{{if .PageCount}}{{.PageCount}} pages{{end}}</span>
             </div>
-            <a href="/my-books/add?google_books_id={{.GoogleBooksID}}&title={{urlquery .Title}}&authors={{urlquery .Authors}}&thumbnail_url={{urlquery .ThumbnailURL}}&isbn_13={{.ISBN13}}&isbn_10={{.ISBN10}}&page_count={{.PageCount}}&q={{urlquery $.Query}}" class="btn btn-primary btn-small">Add</a>
+            <a href="/my-books/add?google_books_id={{.GoogleBooksID}}&title={{urlquery .Title}}&authors={{urlquery .Authors}}&description={{urlquery .Description}}&thumbnail_url={{urlquery .ThumbnailURL}}&isbn_13={{.ISBN13}}&isbn_10={{.ISBN10}}&page_count={{.PageCount}}&q={{urlquery $.Query}}" class="btn btn-primary btn-small">Add</a>
         </div>
         {{end}}
     </div>

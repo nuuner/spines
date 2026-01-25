@@ -114,6 +114,7 @@ func (h *BooksHandler) AddBook(c *fiber.Ctx) error {
 	googleBooksID := c.FormValue("google_books_id")
 	title := c.FormValue("title")
 	authors := c.FormValue("authors")
+	description := c.FormValue("description")
 	thumbnailURL := c.FormValue("thumbnail_url")
 	isbn13 := c.FormValue("isbn_13")
 	isbn10 := c.FormValue("isbn_10")
@@ -126,7 +127,7 @@ func (h *BooksHandler) AddBook(c *fiber.Ctx) error {
 		return c.Redirect("/admin/users/" + c.Params("id") + "/books?error=Missing+required+fields")
 	}
 
-	book, err := models.GetOrCreateBookWithISBN(googleBooksID, title, authors, thumbnailURL, isbn13, isbn10, pageCount, h.Config.GoogleBooksAPIKey)
+	book, err := models.GetOrCreateBookWithISBN(googleBooksID, title, authors, description, thumbnailURL, isbn13, isbn10, pageCount, h.Config.GoogleBooksAPIKey)
 	if err != nil {
 		return c.Redirect("/admin/users/" + c.Params("id") + "/books?error=Failed+to+create+book")
 	}

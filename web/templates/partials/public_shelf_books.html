@@ -1,5 +1,5 @@
 {{range .Books}}
-<div class="book-card">
+<div class="book-card book-card-clickable" onclick="openSynopsisModal(this)" data-title="{{.Book.Title}}" data-authors="{{.Book.Authors}}" data-description="{{.Book.DescriptionText}}" data-cover="{{if .Book.GoogleBooksID}}/api/images/book/{{.Book.GoogleBooksID}}{{end}}">
     {{if .Book.GoogleBooksID}}
     <img src="/api/images/book/{{.Book.GoogleBooksID}}" alt="{{.Book.Title}}" class="book-cover">
     {{else}}
