@@ -170,13 +170,30 @@ func (h *UserBooksHandler) AddBook(c *fiber.Ctx) error {
 		}
 	}
 
-	err = models.AddBookToShelf(user.ID, book.ID, shelf, nullSubStatus, nullRating)
-	if err != nil {
-		return c.Redirect("/my-books?error=Failed+to+add+book+to+shelf")
-	}
+	// Check if user already has this book on any shelf
+	existingBook, _ := models.GetUserBook(user.ID, book.ID)
+	if existingBook != nil {
+		// Book already exists - move it to the new shelf instead of adding a duplicate
+		oldShelf := existingBook.Shelf
+		err = models.UpdateUserBook(user.ID, book.ID, shelf, nullSubStatus, nullRating)
+		if err != nil {
+			return c.Redirect("/my-books?error=Failed+to+move+book+to+shelf")
+		}
 
-	// Create event for book added to shelf
-	_ = models.CreateBookAddedEvent(user.ID, book.ID, shelf)
+		// Create event for book moved (if shelf changed)
+		if oldShelf != shelf {
+			_ = models.CreateBookMovedEvent(user.ID, book.ID, oldShelf, shelf)
+		}
+	} else {
+		// Book doesn't exist - add it
+		err = models.AddBookToShelf(user.ID, book.ID, shelf, nullSubStatus, nullRating)
+		if err != nil {
+			return c.Redirect("/my-books?error=Failed+to+add+book+to+shelf")
+		}
+
+		// Create event for book added to shelf
+		_ = models.CreateBookAddedEvent(user.ID, book.ID, shelf)
+	}
 
 	return c.Redirect("/my-books")
 }
